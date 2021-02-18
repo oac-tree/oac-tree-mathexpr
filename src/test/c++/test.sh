@@ -3,7 +3,7 @@
 # $HeadURL: $
 # $Id: $
 #
-# Project       : Sequencer
+# Project       : Sequencer MathExpression plugin
 #
 # Description   : Test script
 #

@@ -1,20 +1,27 @@
-.PHONY: all cmake_targets
+.PHONY: all unit-tests
 
 PROGNAME=unit-tests
 
 TARGET=../../../target
 
+BIN_DIR := $(TARGET)/bin
 BUILD_DIR := ./build
+
+UNIT_TEST := $(BUILD_DIR)/unit/$(PROGNAME)
 
 BUILD_TYPE = RelWithDebInfo
 
 CMAKE_FLAGS = -DCMAKE_BUILD_TYPE=$(BUILD_TYPE)
 CMAKE_FLAGS += -DCMAKE_INSTALL_PREFIX=$(TARGET)
 
-all: cmake_targets
+all: unit-tests
 
-cmake_targets:
+unit-tests: $(UNIT_TEST)
+	@mkdir -p $(BIN_DIR)
+	cp $(UNIT_TEST) $(BIN_DIR)/
+
+
+$(UNIT_TEST):
 	@mkdir -p $(BUILD_DIR)
 	cmake3 -B$(BUILD_DIR) $(CMAKE_FLAGS)
 	cmake3 --build $(BUILD_DIR)
-	make -C $(BUILD_DIR) install
