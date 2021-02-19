@@ -2,7 +2,7 @@
  * $HeadURL: $
  * $Id: $
  *
- * Project       : SUP Sequencer MathExpression plugin
+ * Project       : SUP Sequencer
  *
  * Description   : Unit test code
  *
@@ -50,6 +50,9 @@ using namespace sup::sequencer;
 // Function definition
 
 static inline bool Initialise(void) {
+    // Log to standard output
+    (void)ccs::log::SetStdout();
+    (void)ccs::log::SetFilter(LOG_DEBUG);
     sup::sequencer::LoadPlugin("../../lib/plugins/libMathExpression.so");
     return true;
 }
@@ -60,15 +63,21 @@ static inline bool Terminate(void) {
 
 static bool PrintProcedureWorkspace(::sup::sequencer::Procedure *procedure);
 
-static const ccs::types::char8 *expressionTable[][14] = {
-        { "c:=a+b", "{\"type\":\"uint8\"}", "8", "c", "{\"type\":\"uint8\"}", "0", "c","{\"type\":\"uint8\"}", "5", "a", "{\"type\":\"uint8\"}", "3", "b", NULL },
-        { "c:=c+1", "{\"type\":\"uint8\"}", "1", "c", "{\"type\":\"uint8\"}", "0", "c", NULL },
-        { "c:=a/b", "{\"type\":\"uint8\"}", "2", "c", "{\"type\":\"uint8\"}", "0", "c", "{\"type\":\"uint8\"}", "4", "a", "{\"type\":\"uint8\"}","2", "b", NULL },
-        { "c:=a/b", "{\"type\":\"uint8\"}", "2", "c", "{\"type\":\"uint8\"}", "0", "c", "{\"type\":\"uint8\"}", "5", "a","{\"type\":\"uint8\"}", "2", "b", NULL },
-        { "c:=a/b", "{\"type\":\"float32\"}", "2.5", "c", "{\"type\":\"float32\"}", "0", "c", "{\"type\":\"uint8\"}","5", "a", "{\"type\":\"uint8\"}", "2", "b", NULL },
-        { "c:=a.field1+b.field2", "{\"type\":\"uint8\"}", "5", "c", "{\"type\":\"uint8\"}", "0", "c", "{\"type\":\"StructuredData1\", \"attributes\":[{\"field1\":{\"type\":\"uint32\"}}]}", "{\"field1\":2}", "a","{\"type\":\"StructuredData2\", \"attributes\":[{\"field1\":{\"type\":\"float32\"}}, {\"field2\":{\"type\":\"uint16\"}}]}", "{\"field1\":20.5, \"field2\":3}", "b", NULL },
-        { "c:=a[1].field1+b.field2[2].field", "{\"type\":\"uint8\"}", "5", "c", "{\"type\":\"uint8\"}", "0", "c", "{\"type\":\"StructuredData6a\", \"multiplicity\":2, \"element\":{\"type\":\"StructuredData6Base\", \"attributes\":[{\"field1\":{\"type\":\"uint32\"}}]}}", "[{\"field1\":1}, {\"field1\":2}]", "a","{\"type\":\"StructuredData6b\", \"attributes\":[{\"field1\":{\"type\":\"float32\"}}, {\"field2\":{\"type\":\"StructuredData6c\", \"multiplicity\":3, \"element\":{\"type\":\"internalStruct\", \"attributes\":[{\"field\":{\"type\":\"uint16\"}}]}}}]}", "{\"field1\":20.5, \"field2\":[{\"field\":30}, {\"field\":20}, {\"field\":3}]}", "b", NULL },
-        { NULL } };
+static const ccs::types::char8 *expressionTable[][14] =
+        { { "c:=a+b", "{\"type\":\"uint8\"}", "8", "c", "{\"type\":\"uint8\"}", "0", "c", "{\"type\":\"uint8\"}", "5", "a", "{\"type\":\"uint8\"}", "3", "b",
+                NULL }, { "c:=c+1", "{\"type\":\"uint8\"}", "1", "c", "{\"type\":\"uint8\"}", "0", "c", NULL }, { "c:=a/b", "{\"type\":\"uint8\"}", "2", "c",
+                "{\"type\":\"uint8\"}", "0", "c", "{\"type\":\"uint8\"}", "4", "a", "{\"type\":\"uint8\"}", "2", "b", NULL }, { "c:=a/b",
+                "{\"type\":\"uint8\"}", "2", "c", "{\"type\":\"uint8\"}", "0", "c", "{\"type\":\"uint8\"}", "5", "a", "{\"type\":\"uint8\"}", "2", "b", NULL },
+                { "c:=a/b", "{\"type\":\"float32\"}", "2.5", "c", "{\"type\":\"float32\"}", "0", "c", "{\"type\":\"uint8\"}", "5", "a", "{\"type\":\"uint8\"}",
+                        "2", "b", NULL }, { "c:=a.field1+b.field2", "{\"type\":\"uint8\"}", "5", "c", "{\"type\":\"uint8\"}", "0", "c",
+                        "{\"type\":\"StructuredData1\", \"attributes\":[{\"field1\":{\"type\":\"uint32\"}}]}", "{\"field1\":2}", "a",
+                        "{\"type\":\"StructuredData2\", \"attributes\":[{\"field1\":{\"type\":\"float32\"}}, {\"field2\":{\"type\":\"uint16\"}}]}",
+                        "{\"field1\":20.5, \"field2\":3}", "b", NULL },
+                { "c:=a[1].field1+b.field2[2].field", "{\"type\":\"uint8\"}", "5", "c", "{\"type\":\"uint8\"}", "0", "c",
+                        "{\"type\":\"StructuredData6a\", \"multiplicity\":2, \"element\":{\"type\":\"StructuredData6Base\", \"attributes\":[{\"field1\":{\"type\":\"uint32\"}}]}}",
+                        "[{\"field1\":1}, {\"field1\":2}]", "a",
+                        "{\"type\":\"StructuredData6b\", \"attributes\":[{\"field1\":{\"type\":\"float32\"}}, {\"field2\":{\"type\":\"StructuredData6c\", \"multiplicity\":3, \"element\":{\"type\":\"internalStruct\", \"attributes\":[{\"field\":{\"type\":\"uint16\"}}]}}}]}",
+                        "{\"field1\":20.5, \"field2\":[{\"field\":30}, {\"field\":20}, {\"field\":3}]}", "b", NULL }, { NULL } };
 
 TEST(MathExpressionNode, Default) // Static initialisation
 {
@@ -86,7 +95,9 @@ TEST(MathExpressionNode, Default) // Static initialisation
     if (status)
     {
         LogUI ui;
-        proc->ExecuteSingle(&ui);
+        while((proc->GetStatus()!=ExecutionStatus::SUCCESS) && (proc->GetStatus()!=ExecutionStatus::FAILURE)) {
+            proc->ExecuteSingle(&ui);
+        }
         status = (proc->GetStatus() == ExecutionStatus::SUCCESS);
     }
 
@@ -127,24 +138,13 @@ TEST(MathExpressionNode, Default1) // Static initialisation
         ccs::types::uint32 j=4u;
         while(expressionTable[i][j]!=NULL) {
 
-            std::unique_ptr<Variable> varX;
-            ::ccs::base::SharedReference<::ccs::types::AnyType> localType;
-            std::unique_ptr<::ccs::types::AnyValue> valX;
+            std::unique_ptr<Variable> varX(new LocalVariable);
 
-            printf("parse type %s\n", expressionTable[i][j]);
-            ::ccs::HelperTools::Parse(localType, expressionTable[i][j]);
-            ::ccs::base::SharedReference<const ::ccs::types::AnyType> constLocalType(localType);
-            varX.reset(new LocalVariable(constLocalType));
-            valX.reset(new ccs::types::AnyValue (constLocalType));
-
+            varX->AddAttribute("type", expressionTable[i][j]);
             j++;
-            printf("parse instance %s\n", expressionTable[i][j]);
-            valX->ParseInstance(expressionTable[i][j]);
-
+            varX->AddAttribute("value", expressionTable[i][j]);
             j++;
             printf("parse variable %s\n", expressionTable[i][j]);
-
-            varX->SetValue(*valX);
             proc->AddVariable(expressionTable[i][j], varX.release());
             j++;
         }
@@ -154,7 +154,7 @@ TEST(MathExpressionNode, Default1) // Static initialisation
         if (status) {
             LogUI ui;
             proc->PushInstruction(myMathNode.release());
-
+            proc->Setup();
             proc->ExecuteSingle(&ui);
             status = (proc->GetStatus() == ExecutionStatus::SUCCESS);
         }
