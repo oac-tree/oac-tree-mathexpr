@@ -44,7 +44,7 @@ target_compile_definitions(MathExpression
     )
 
 target_link_directories(MathExpression
-    PUBLIC $ENV{CODAC_ROOT}/lib /home/ITER/ferrog/SUP/sequencer/target/lib
+    PUBLIC $ENV{CODAC_ROOT}/lib 
     )
 
 target_link_libraries(MathExpression
