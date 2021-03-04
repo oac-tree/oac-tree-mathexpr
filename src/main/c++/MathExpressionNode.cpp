@@ -64,6 +64,7 @@ MathExpressionNode::~MathExpressionNode() {
 }
 
 bool MathExpressionNode::Setup(Workspace *ws) {
+    log_info("MathExpressionNode::Setup ..");
 
     engine = MathExpressionEngineProvider::Instance()->CreateNewEngine();
     bool ret = (engine != NULL);

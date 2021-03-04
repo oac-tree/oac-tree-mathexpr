@@ -1,25 +1,23 @@
-/**
- * @file MathExpressionEngineExptrk.h
- * @brief Header file for class MathExpressionEngineExptrk
- * @date Jan 15, 2021 TODO Verify the value and format of the date
- * @author ferrog TODO Verify the name and format of the author
+/******************************************************************************
+ * $HeadURL: $
+ * $Id: $
  *
- * @copyright Copyright 2015 F4E | European Joint Undertaking for ITER and
- * the Development of Fusion Energy ('Fusion for Energy').
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved
- * by the European Commission - subsequent versions of the EUPL (the "Licence")
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at: http://ec.europa.eu/idabc/eupl
+ * Project       : CODAC Core System
  *
- * @warning Unless required by applicable law or agreed to in writing,
- * software distributed under the Licence is distributed on an "AS IS"
- * basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the Licence permissions and limitations under the Licence.
-
- * @details This header file contains the declaration of the class MathExpressionEngineExptrk
- * with all of its public, protected and private members. It may also include
- * definitions for inline methods which need to be visible to the compiler.
- */
+ * Description   : EPICS ChannelAccess helper
+ *
+ * Author        : G.Ferro (IO)
+ *
+ * Copyright (c) : 2010-2019 ITER Organization,
+ *  CS 90 046
+ *  13067 St. Paul-lez-Durance Cedex
+ *  France
+ *
+ * This file is part of ITER CODAC software.
+ * For the terms and conditions of redistribution or use of this software
+ * refer to the file ITER-LICENSE.TXT located in the top level directory
+ * of the distribution package.
+ ******************************************************************************/
 
 #ifndef MATHEXPRESSIONENGINEEXPTRK_H_
 #define MATHEXPRESSIONENGINEEXPTRK_H_
@@ -47,6 +45,8 @@
 namespace sup {
 
 namespace sequencer {
+
+#define SymbolListType std::deque<typename exprtk::parser<T>::dependent_entity_collector::symbol_t>
 
 class BasicCastI {
 public:
@@ -114,11 +114,12 @@ private:
 
     Workspace *myWs;
 
-    std::string::size_type CheckForArray(std::string varName,
-                                         std::vector<::ccs::types::uint32> &dimension);
+    void CheckForArray(std::string &varName);
 
-    bool GetVarValue(std::string varName,
-                     ::ccs::types::AnyValue &var);
+    bool CompileInputs(const std::vector<std::string> &origin_varnames);
+
+    bool CompileOutputs(const std::vector<std::string> &origin_varnames,
+                        SymbolListType &symbol_list);
 
 public:
     MathExpressionEngineExptrk();
@@ -181,125 +182,114 @@ MathExpressionEngineExptrk<T>::~MathExpressionEngineExptrk() {
 }
 
 template<typename T>
-std::string::size_type MathExpressionEngineExptrk<T>::CheckForArray(std::string varName,
-                                                                    std::vector<::ccs::types::uint32> &dimension) {
+void MathExpressionEngineExptrk<T>::CheckForArray(std::string &varName) {
 
     std::string::size_type prev_pos = 0;
     std::string::size_type pos = 0;
-    std::string::size_type ret = varName.length();
     while ((pos = varName.find('I', pos)) != std::string::npos) {
-        if (ret > pos) {
-            ret = pos;
-        }
         pos++;
         prev_pos = pos;
-        log_info("MathExpressionEngineExptrk::GetVarValue - Found open array");
+        log_info("MathExpressionEngineExptrk::CheckForArray - Found open array");
         if ((pos = varName.find('I', pos)) != std::string::npos) {
             std::string dimStr(varName.substr(prev_pos, pos - prev_pos));
             ::ccs::types::char8 *p;
             ::ccs::types::uint32 dim = std::strtol(dimStr.c_str(), &p, 10);
-            //conversion failed
-            if (*p != 0) {
-                dimension.clear();
-                ret = varName.length();
-                break;
+            //conversion success
+            if (*p == 0) {
+                varName[prev_pos - 1] = '[';
+                varName[pos] = ']';
+                pos++;
+                prev_pos = pos;
             }
-            dimension.push_back(dim);
-            log_info("MathExpressionEngineExptrk::GetVarValue - Added dimension %d", dim);
-            pos++;
-            prev_pos = pos;
+            log_info("MathExpressionEngineExptrk::CheckForArray - Found dimension %d", dim);
         }
         else {
             break;
         }
     }
+}
+
+template<typename T>
+bool MathExpressionEngineExptrk<T>::CompileInputs(const std::vector<std::string> &origin_varnames) {
+    //get the variable number of variables to preallocate the memory
+    ::ccs::types::uint32 numberOfVars = varNames.size();
+    varMem.resize(numberOfVars);
+    varInCast.resize(numberOfVars);
+    varOutCast.resize(numberOfVars);
+    bool ret = true;
+    for (::ccs::types::uint32 i = 0u; (i < numberOfVars); i++) {
+        ::ccs::types::AnyValue var;
+        CheckForArray(varNames[i]);
+        ret = myWs->GetValue(varNames[i], var);
+        if (!ret) {
+            log_error("MathExpressionEngineExptrk::Compile Failed workspace->GetValue(%s)", varNames[i].c_str());
+            break;
+        }
+
+        ::ccs::base::SharedReference<const ::ccs::types::AnyType> varTypeRef = var.GetType();
+        ret = varTypeRef.IsValid();
+        if (!ret) {
+            log_error("MathExpressionEngineExptrk::Compile Failed GetType of %s", varNames[i].c_str());
+            break;
+        }
+
+        //use arrays to be generic
+        ::ccs::types::uint32 varSize = (var.GetSize() / varTypeRef->GetSize());
+        varMem[i].resize(varSize);
+        ret = symbolTable.add_vector(origin_varnames[i], varMem[i]);
+        if (!ret) {
+            log_error("MathExpressionEngineExptrk::Compile Failed symbolTable.add_vector(%s)", varNames[i].c_str());
+            break;
+        }
+
+        varInCast[i] = NULL;
+        varOutCast[i] = NULL;
+
+        //register the input cast function
+        ::ccs::types::uint8 typeId = static_cast<::ccs::types::uint8>(::ccs::types::GetIdentifier(varTypeRef->GetName()));
+        ret = (typeId < 13u);
+        if (!ret) {
+            log_error("MathExpressionEngineExptrk::Compile Failed GetIdentifier of %s", varTypeRef->GetName());
+            break;
+        }
+        varInCast[i] = inputCasts[typeId];
+    }
     return ret;
 }
 
 template<typename T>
-bool MathExpressionEngineExptrk<T>::GetVarValue(std::string varName,
-                                                ::ccs::types::AnyValue &var) {
+bool MathExpressionEngineExptrk<T>::CompileOutputs(const std::vector<std::string> &origin_varnames,
+                                                   SymbolListType &symbol_list) {
+    bool ret = true;
+    expressionParser.dec().assignment_symbols(symbol_list);
+    for (ccs::types::uint32 i = 0; (i < symbol_list.size()) && ret; i++) {
 
-    std::string::size_type prev_pos = 0;
-    std::string::size_type pos = 0;
-    pos = varName.find('.');
-    std::string fVarNameT(varName.substr(0, pos));
-    std::vector < ::ccs::types::uint32 > dimension;
-    std::string::size_type arrPos = CheckForArray(fVarNameT, dimension);
-    std::string fVarName(fVarNameT.substr(0, arrPos));
-    log_info("MathExpressionEngineExptrk::GetVarValue - Considering %s", varName.c_str());
-
-    ::ccs::types::AnyValue fullVar;
-    log_info("MathExpressionEngineExptrk::GetVarValue - Workspace var is: %s", fVarName.c_str());
-    bool ret = myWs->GetValue(fVarName, fullVar);
-
-    ::ccs::base::SharedReference<const ::ccs::types::AnyType> myType = fullVar.GetType();
-    ccs::types::uint32 offset = 0u;
-
-    for (::ccs::types::uint32 i = 0u; (i < dimension.size()) && ret; i++) {
-        log_info("MathExpressionEngineExptrk::GetVarValue - var %s dimension[%d]=%d", fVarName.c_str(), i, dimension[i]);
-
-        ::ccs::base::SharedReference<const ::ccs::types::ArrayType> myArrayType = myType;
-        ret = myArrayType.IsValid();
-        if (ret) {
-            offset += myArrayType->GetElementOffset(dimension[i]);
-            myType = myArrayType->GetElementType();
-        }
-    }
-
-    if (ret && (pos != std::string::npos)) {
-
-        ret = myType.IsValid();
-        //if not done, keep searching next field
-        //in this case the type must be compound
-        while ((pos != std::string::npos) && (ret)) {
-            pos++;
-            prev_pos = pos;
-
-            pos = varName.find('.', pos);
-            std::string fieldNameT(varName.substr(prev_pos, pos - prev_pos));
-            dimension.clear();
-            arrPos = CheckForArray(fieldNameT, dimension);
-            std::string fieldName(fieldNameT.substr(0, arrPos));
-            log_info("MathExpressionEngineExptrk::GetVarValue - FieldName %s", fieldName.c_str());
-
-            ::ccs::base::SharedReference<const ::ccs::types::CompoundType> myCompType = myType;
-            ret = myCompType.IsValid();
-            if (ret) {
-                offset += myCompType->GetAttributeOffset(fieldName.c_str());
-                log_info("MathExpressionEngineExptrk::GetVarValue - var %s new offset=%d", fieldName.c_str(), offset);
-                myType = myCompType->GetAttributeType(fieldName.c_str());
-                ret = myType.IsValid();
-                if (ret) {
-
-                    //if dimension is not empty go to browse the array
-                    for (::ccs::types::uint32 i = 0u; (i < dimension.size()) && ret; i++) {
-                        log_info("MathExpressionEngineExptrk::GetVarValue - var %s dimension[%d]=%d", fieldName.c_str(), i, dimension[i]);
-                        ::ccs::base::SharedReference<const ::ccs::types::ArrayType> myArrayType = myType;
-                        ret = myArrayType.IsValid();
-                        if (ret) {
-                            offset += myArrayType->GetElementOffset(dimension[i]);
-                            log_info("MathExpressionEngineExptrk::GetVarValue - var %s new offset=%d", fieldName.c_str(), offset);
-                            myType = myArrayType->GetElementType();
-                        }
-                    }
+        for (ccs::types::uint32 j = 0; (j < origin_varnames.size()); j++) {
+            //when the output matches the variable, save the output cast
+            if (origin_varnames[j] == symbol_list[i].first) {
+                ::ccs::types::AnyValue var;
+                ret = myWs->GetValue(varNames[j], var);
+                if (!ret) {
+                    log_error("MathExpressionEngineExptrk::Compile Failed workspace->GetValue(%s)", varNames[j].c_str());
+                    break;
                 }
-                else {
-                    log_info("MathExpressionEngineExptrk::GetVarValue - Failed %s.GetType()", fieldName.c_str());
+
+                ::ccs::base::SharedReference<const ::ccs::types::AnyType> varTypeRef = var.GetType();
+                ret = varTypeRef.IsValid();
+                if (!ret) {
+                    log_error("MathExpressionEngineExptrk::Compile Failed GetType of %s", varNames[j].c_str());
                 }
-            }
-            else {
-                log_info("MathExpressionEngineExptrk::GetVarValue - %s is not a Compound Type", myType->GetName());
+                ::ccs::types::uint8 typeId = static_cast<::ccs::types::uint8>(::ccs::types::GetIdentifier(varTypeRef->GetName()));
+                ret = (typeId < 13u);
+                if (!ret) {
+                    log_error("MathExpressionEngineExptrk::Compile Failed GetIdentifier of %s", varTypeRef->GetName());
+                }
+                //for the output register the output cast function
+                varOutCast[j] = outputCasts[typeId];
             }
         }
     }
-    if (ret) {
-        ::ccs::types::uint8 *srcMem = reinterpret_cast<::ccs::types::uint8*>(fullVar.GetInstance());
-        var = ::ccs::types::AnyValue(myType);
-        ::ccs::types::uint32 size = myType->GetSize();
-        ::ccs::types::uint8 *dstMem = reinterpret_cast<::ccs::types::uint8*>(var.GetInstance());
-        memcpy(dstMem, &srcMem[offset], size);
-    }
+
     return ret;
 }
 
@@ -314,104 +304,27 @@ bool MathExpressionEngineExptrk<T>::Compile(const ccs::types::char8 *expressionI
         std::string exprStr = expressionIn;
         std::replace(exprStr.begin(), exprStr.end(), '[', 'I');
         std::replace(exprStr.begin(), exprStr.end(), ']', 'I');
-
-        ret = exprtk::collect_variables(exprStr.c_str(), varNames);
+        std::vector < std::string > origin_varnames;
+        ret = exprtk::collect_variables(exprStr.c_str(), origin_varnames);
+        varNames = origin_varnames;
         if (ret) {
-            //get the variable number of variables to preallocate the memory
-            ::ccs::types::uint32 numberOfVars = varNames.size();
-            varMem.resize(numberOfVars);
-            varInCast.resize(numberOfVars);
-            varOutCast.resize(numberOfVars);
-            for (::ccs::types::uint32 i = 0u; (i < numberOfVars) && (ret); i++) {
-                ::ccs::types::AnyValue var;
-
-                ret = GetVarValue(varNames[i], var);
-
-                if (ret) {
-
-                    ::ccs::base::SharedReference<const ::ccs::types::AnyType> varTypeRef = var.GetType();
-                    ret = varTypeRef.IsValid();
-                    if (ret) {
-                        //use arrays to be generic
-                        ::ccs::types::uint32 varSize = (var.GetSize() / varTypeRef->GetSize());
-                        varMem[i].resize(varSize);
-                        ret = symbolTable.add_vector(varNames[i], varMem[i]);
-
-                        if (ret) {
-                            varInCast[i] = NULL;
-                            varOutCast[i] = NULL;
-
-                            //register the input cast function
-                            ::ccs::types::uint8 typeId = static_cast<::ccs::types::uint8>(::ccs::types::GetIdentifier(varTypeRef->GetName()));
-                            ret = (typeId < 13u);
-                            if (ret) {
-                                varInCast[i] = inputCasts[typeId];
-                            }
-                            else {
-                                log_error("MathExpressionEngineExptrk::Compile Failed GetIdentifier of %s", varTypeRef->GetName());
-                            }
-                        }
-                        else {
-                            log_error("MathExpressionEngineExptrk::Compile Failed symbolTable.add_vector(%s)", varNames[i].c_str());
-                        }
-                    }
-                    else {
-                        log_error("MathExpressionEngineExptrk::Compile Failed GetType of %s", varNames[i].c_str());
-                    }
-                }
-                else {
-                    log_error("MathExpressionEngineExptrk::Compile Failed workspace->GetValue(%s)", varNames[i].c_str());
-                }
-            }
+            ret = CompileInputs(origin_varnames);
         }
         else {
             log_error("MathExpressionEngineExptrk::Compile Failed exprtk::collect_variables of %s", expressionIn);
         }
 
         if (ret) {
-            //compile and get the assignments (outputs)
-            std::deque<typename exprtk::parser<T>::dependent_entity_collector::symbol_t> symbol_list;
+            SymbolListType symbol_list;
             expressionParser.dec().collect_assignments() = true;
             expression.register_symbol_table(symbolTable);
 
             ret = expressionParser.compile(exprStr.c_str(), expression);
             if (ret) {
-                expressionParser.dec().assignment_symbols(symbol_list);
-                for (ccs::types::uint32 i = 0; (i < symbol_list.size()) && ret; i++) {
-
-                    for (ccs::types::uint32 j = 0; (j < varNames.size()); j++) {
-                        //when the output matches the variable, save the output cast
-                        if (varNames[j] == symbol_list[i].first) {
-                            ::ccs::types::AnyValue var;
-                            ret = GetVarValue(varNames[j], var);
-                            if (ret) {
-                                ::ccs::base::SharedReference<const ::ccs::types::AnyType> varTypeRef = var.GetType();
-                                ret = varTypeRef.IsValid();
-                                if (ret) {
-                                    ::ccs::types::uint8 typeId = static_cast<::ccs::types::uint8>(::ccs::types::GetIdentifier(varTypeRef->GetName()));
-                                    ret = (typeId < 13u);
-                                    if (ret) {
-                                        //for the output register the output cast function
-                                        varOutCast[j] = outputCasts[typeId];
-                                    }
-                                    else {
-                                        log_error("MathExpressionEngineExptrk::Compile Failed GetIdentifier of %s", varTypeRef->GetName());
-                                    }
-                                }
-                                else {
-                                    log_error("MathExpressionEngineExptrk::Compile Failed GetType of %s", varNames[j].c_str());
-                                }
-                            }
-                            else {
-                                log_error("MathExpressionEngineExptrk::Compile Failed workspace->GetValue(%s)", varNames[j].c_str());
-                            }
-                        }
-                    }
-                }
-
+                //compile and get the assignments (outputs)
+                ret = CompileOutputs(origin_varnames, symbol_list);
             }
             else {
-
                 // Print a log of each detected error.
                 for (::ccs::types::uint32 i = 0; i < expressionParser.error_count(); ++i) {
                     exprtk::parser_error::type error = expressionParser.get_error(i);
@@ -421,7 +334,6 @@ bool MathExpressionEngineExptrk<T>::Compile(const ccs::types::char8 *expressionI
                               static_cast<::ccs::types::uint32>(error.column_no), exprtk::parser_error::to_str(error.mode).c_str(), error.diagnostic.c_str());
 
                 }
-
             }
         }
     }
@@ -442,7 +354,7 @@ bool MathExpressionEngineExptrk<T>::Execute() {
             if (varInCast[i] != NULL) {
                 ::ccs::types::uint32 varSize = varMem[i].size();
                 ::ccs::types::AnyValue valT;
-                ret = GetVarValue(varNames[i], valT);
+                ret = myWs->GetValue(varNames[i], valT);
                 if (ret) {
                     void *inPtr = valT.GetInstance();
                     for (::ccs::types::uint32 j = 0u; j < varSize; j++) {
@@ -463,7 +375,6 @@ bool MathExpressionEngineExptrk<T>::Execute() {
                 myWs->GetValue(varNames[i], valT);
                 void *outPtr = valT.GetInstance();
                 for (::ccs::types::uint32 j = 0u; j < varSize; j++) {
-                    //todo workspace lock here (or better lock single vars)
                     varOutCast[i]->Do(&varMem[i][0], outPtr, j);
                 }
                 myWs->SetValue(varNames[i], valT);

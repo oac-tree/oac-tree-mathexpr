@@ -33,6 +33,12 @@
     <properties>
         <unit.type>module</unit.type>
         <integrity.level>1</integrity.level>
+        <cppcheck.args>--enable=all --suppress=missingInclude --inline-suppr</cppcheck.args>
+        <valgrind.enable>false</valgrind.enable>
+        <sonar.exclusions>
+            src/test/**,
+            src/main/c++/exprtk.hpp
+        </sonar.exclusions>        
         <pluginpath>lib/plugins</pluginpath>
     </properties>
 
@@ -89,7 +95,7 @@
                     <packaging>
                         <package>
                             <!-- Libraries -->
-                            <include type="file" source="lib" target="lib/plugins">
+                            <include type="file" source="lib" target="${pluginpath}">
                                 <include>*.so*</include>
                             </include>
                             <!-- Package dependencies -->

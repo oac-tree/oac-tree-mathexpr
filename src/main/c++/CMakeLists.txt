@@ -5,9 +5,14 @@ project(sequencer-plugin-mathexpr LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+if (DEFINED COVERAGE AND ${COVERAGE})
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -g -fprofile-arcs -ftest-coverage --coverage")
+endif()
+
 if(CMAKE_VERSION VERSION_LESS "3.7.0")
     set(CMAKE_INCLUDE_CURRENT_DIR ON)
 endif()
+
 
 add_library(MathExpression SHARED)
 
@@ -28,6 +33,7 @@ target_include_directories(MathExpression
     PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}
         $ENV{CODAC_ROOT}/include
+        /home/ITER/ferrog/SUP/sequencer/src/main/c++/include
         $ENV{CODAC_ROOT}/include/sup
     )
 
@@ -38,7 +44,7 @@ target_compile_definitions(MathExpression
     )
 
 target_link_directories(MathExpression
-    PUBLIC $ENV{CODAC_ROOT}/lib
+    PUBLIC $ENV{CODAC_ROOT}/lib /home/ITER/ferrog/SUP/sequencer/target/lib
     )
 
 target_link_libraries(MathExpression

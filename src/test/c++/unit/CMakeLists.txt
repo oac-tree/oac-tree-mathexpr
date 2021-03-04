@@ -9,12 +9,15 @@ target_sources(unit-tests
 target_include_directories(unit-tests
     PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}/../../../main/c++
+        /home/ITER/ferrog/SUP/sequencer/src/main/c++/include
+        /home/ITER/ferrog/SUP/sequencer/src/main/c++/variables
         $ENV{CODAC_ROOT}/include
         $ENV{CODAC_ROOT}/include/sup
     )
 
 target_link_directories(unit-tests
     PRIVATE
+        /home/ITER/ferrog/SUP/sequencer/target/lib
         ${CMAKE_CURRENT_LIST_DIR}/../../../../target/lib
         $ENV{CODAC_ROOT}/lib
     )
