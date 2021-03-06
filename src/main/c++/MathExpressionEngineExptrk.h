@@ -216,81 +216,55 @@ bool MathExpressionEngineExptrk<T>::CompileInputs(const std::vector<std::string>
     varMem.resize(numberOfVars);
     varInCast.resize(numberOfVars);
     varOutCast.resize(numberOfVars);
-    bool ret = true;
     for (::ccs::types::uint32 i = 0u; (i < numberOfVars); i++) {
         ::ccs::types::AnyValue var;
         CheckForArray(varNames[i]);
-        ret = myWs->GetValue(varNames[i], var);
-        if (!ret) {
+        if (!myWs->GetValue(varNames[i], var)) {
             log_error("MathExpressionEngineExptrk::Compile Failed workspace->GetValue(%s)", varNames[i].c_str());
-            break;
-        }
-
-        ::ccs::base::SharedReference<const ::ccs::types::AnyType> varTypeRef = var.GetType();
-        ret = varTypeRef.IsValid();
-        if (!ret) {
-            log_error("MathExpressionEngineExptrk::Compile Failed GetType of %s", varNames[i].c_str());
-            break;
+            return false;
         }
 
         //use arrays to be generic
-        ::ccs::types::uint32 varSize = (var.GetSize() / varTypeRef->GetSize());
+        ::ccs::types::uint32 varSize = (var.GetSize() / var.GetType()->GetSize());
         varMem[i].resize(varSize);
-        ret = symbolTable.add_vector(origin_varnames[i], varMem[i]);
-        if (!ret) {
-            log_error("MathExpressionEngineExptrk::Compile Failed symbolTable.add_vector(%s)", varNames[i].c_str());
-            break;
-        }
+        if (!symbolTable.add_vector(origin_varnames[i], varMem[i]))
+            return false;
 
         varInCast[i] = NULL;
         varOutCast[i] = NULL;
 
         //register the input cast function
-        ::ccs::types::uint8 typeId = static_cast<::ccs::types::uint8>(::ccs::types::GetIdentifier(varTypeRef->GetName()));
-        ret = (typeId < 13u);
-        if (!ret) {
-            log_error("MathExpressionEngineExptrk::Compile Failed GetIdentifier of %s", varTypeRef->GetName());
-            break;
+        ::ccs::types::uint8 typeId = static_cast<::ccs::types::uint8>(::ccs::types::GetIdentifier(var.GetType()->GetName()));
+        if (typeId >= 13u) {
+            log_error("MathExpressionEngineExptrk::Compile Failed GetIdentifier of %s", var.GetType()->GetName());
+            return false;
         }
         varInCast[i] = inputCasts[typeId];
     }
-    return ret;
+    return true;
 }
 
 template<typename T>
 bool MathExpressionEngineExptrk<T>::CompileOutputs(const std::vector<std::string> &origin_varnames,
                                                    SymbolListType &symbol_list) {
-    bool ret = true;
     expressionParser.dec().assignment_symbols(symbol_list);
-    for (ccs::types::uint32 i = 0; (i < symbol_list.size()) && ret; i++) {
+    for (ccs::types::uint32 i = 0; (i < symbol_list.size()); i++) {
 
         for (ccs::types::uint32 j = 0; (j < origin_varnames.size()); j++) {
             //when the output matches the variable, save the output cast
             if (origin_varnames[j] == symbol_list[i].first) {
                 ::ccs::types::AnyValue var;
-                ret = myWs->GetValue(varNames[j], var);
-                if (!ret) {
-                    log_error("MathExpressionEngineExptrk::Compile Failed workspace->GetValue(%s)", varNames[j].c_str());
-                    break;
-                }
+                (void) myWs->GetValue(varNames[j], var);
 
                 ::ccs::base::SharedReference<const ::ccs::types::AnyType> varTypeRef = var.GetType();
-                ret = varTypeRef.IsValid();
-                if (!ret) {
-                    log_error("MathExpressionEngineExptrk::Compile Failed GetType of %s", varNames[j].c_str());
-                }
                 ::ccs::types::uint8 typeId = static_cast<::ccs::types::uint8>(::ccs::types::GetIdentifier(varTypeRef->GetName()));
-                ret = (typeId < 13u);
-                if (!ret) {
-                    log_error("MathExpressionEngineExptrk::Compile Failed GetIdentifier of %s", varTypeRef->GetName());
-                }
                 //for the output register the output cast function
                 varOutCast[j] = outputCasts[typeId];
             }
         }
     }
 
-    return ret;
+    return true;
 }
 
 template<typename T>
@@ -324,17 +298,18 @@ bool MathExpressionEngineExptrk<T>::Compile(const ccs::types::char8 *expressionI
                 //compile and get the assignments (outputs)
                 ret = CompileOutputs(origin_varnames, symbol_list);
             }
-            else {
-                // Print a log of each detected error.
-                for (::ccs::types::uint32 i = 0; i < expressionParser.error_count(); ++i) {
-                    exprtk::parser_error::type error = expressionParser.get_error(i);
-                    exprtk::parser_error::update_error(error, expressionIn);
+        }
+    }
 
-                    log_error("Error[%i]. Position: row %i, col %i. Type: %s. Description: %s\n", i, static_cast<::ccs::types::uint32>(error.line_no),
-                              static_cast<::ccs::types::uint32>(error.column_no), exprtk::parser_error::to_str(error.mode).c_str(), error.diagnostic.c_str());
+    if (!ret) {
+        // Print a log of each detected error.
+        for (::ccs::types::uint32 i = 0; i < expressionParser.error_count(); ++i) {
+            exprtk::parser_error::type error = expressionParser.get_error(i);
+            exprtk::parser_error::update_error(error, expressionIn);
 
-                }
-            }
+            log_error("Error[%i]. Position: row %i, col %i. Type: %s. Description: %s\n", i, static_cast<::ccs::types::uint32>(error.line_no),
+                      static_cast<::ccs::types::uint32>(error.column_no), exprtk::parser_error::to_str(error.mode).c_str(), error.diagnostic.c_str());
+
         }
     }
 
@@ -344,44 +319,38 @@ bool MathExpressionEngineExptrk<T>::Compile(const ccs::types::char8 *expressionI
 template<typename T>
 bool MathExpressionEngineExptrk<T>::Execute() {
 
-    bool ret = (myWs != NULL);
+    ::ccs::types::uint32 nVars = varMem.size();
 
-    if (ret) {
-        ::ccs::types::uint32 nVars = varMem.size();
-
-        for (::ccs::types::uint32 i = 0u; i < nVars; i++) {
-            //do it for each element
-            if (varInCast[i] != NULL) {
-                ::ccs::types::uint32 varSize = varMem[i].size();
-                ::ccs::types::AnyValue valT;
-                ret = myWs->GetValue(varNames[i], valT);
-                if (ret) {
-                    void *inPtr = valT.GetInstance();
-                    for (::ccs::types::uint32 j = 0u; j < varSize; j++) {
-                        //todo workspace lock here (or better lock single vars)
-                        varInCast[i]->Do(inPtr, &varMem[i][0], j);
-                    }
-                }
-            }
-        }
-
-        expression.value();
-
-        for (::ccs::types::uint32 i = 0u; i < nVars; i++) {
-            //do it for each element
-            if (varOutCast[i] != NULL) {
-                ::ccs::types::uint32 varSize = varMem[i].size();
-                ::ccs::types::AnyValue valT;
-                myWs->GetValue(varNames[i], valT);
-                void *outPtr = valT.GetInstance();
-                for (::ccs::types::uint32 j = 0u; j < varSize; j++) {
-                    varOutCast[i]->Do(&varMem[i][0], outPtr, j);
-                }
-                myWs->SetValue(varNames[i], valT);
+    for (::ccs::types::uint32 i = 0u; i < nVars; i++) {
+        //do it for each element
+        if (varInCast[i] != NULL) {
+            ::ccs::types::uint32 varSize = varMem[i].size();
+            ::ccs::types::AnyValue valT;
+            (void) myWs->GetValue(varNames[i], valT);
+            void *inPtr = valT.GetInstance();
+            for (::ccs::types::uint32 j = 0u; j < varSize; j++) {
+                //todo workspace lock here (or better lock single vars)
+                varInCast[i]->Do(inPtr, &varMem[i][0], j);
             }
         }
     }
-    return ret;
+
+    expression.value();
+
+    for (::ccs::types::uint32 i = 0u; i < nVars; i++) {
+        //do it for each element
+        if (varOutCast[i] != NULL) {
+            ::ccs::types::uint32 varSize = varMem[i].size();
+            ::ccs::types::AnyValue valT;
+            (void)myWs->GetValue(varNames[i], valT);
+            void *outPtr = valT.GetInstance();
+            for (::ccs::types::uint32 j = 0u; j < varSize; j++) {
+                varOutCast[i]->Do(&varMem[i][0], outPtr, j);
+            }
+            myWs->SetValue(varNames[i], valT);
+        }
+    }
+    return true;
 }
 
 BasicCastI::BasicCastI() {

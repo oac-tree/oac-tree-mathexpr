@@ -51,9 +51,9 @@ using namespace sup::sequencer;
 
 static inline bool Initialise(void) {
     // Log to standard output
-    (void)ccs::log::SetStdout();
-    (void)ccs::log::SetFilter(LOG_DEBUG);
-    sup::sequencer::LoadPlugin("../../lib/plugins/libMathExpression.so");
+    (void) ccs::log::SetStdout();
+    (void) ccs::log::SetFilter(LOG_DEBUG);
+    sup::sequencer::LoadPlugin("../../lib/libMathExpression.so");
     return true;
 }
 
@@ -77,7 +77,14 @@ static const ccs::types::char8 *expressionTable[][14] =
                         "{\"type\":\"StructuredData6a\", \"multiplicity\":2, \"element\":{\"type\":\"StructuredData6Base\", \"attributes\":[{\"field1\":{\"type\":\"uint32\"}}]}}",
                         "[{\"field1\":1}, {\"field1\":2}]", "a",
                         "{\"type\":\"StructuredData6b\", \"attributes\":[{\"field1\":{\"type\":\"float32\"}}, {\"field2\":{\"type\":\"StructuredData6c\", \"multiplicity\":3, \"element\":{\"type\":\"internalStruct\", \"attributes\":[{\"field\":{\"type\":\"uint16\"}}]}}}]}",
-                        "{\"field1\":20.5, \"field2\":[{\"field\":30}, {\"field\":20}, {\"field\":3}]}", "b", NULL }, { NULL } };
+                        "{\"field1\":20.5, \"field2\":[{\"field\":30}, {\"field\":20}, {\"field\":3}]}", "b", NULL },
+                { "c[0].field1:=a[0].field1+2",
+                        "{\"type\":\"StructuredData7a\",   \"multiplicity\":2, \"element\":{\"type\":\"StructuredData6Base\", \"attributes\":[{\"field1\":{\"type\":\"uint32\"}}]}}",
+                        "[{\"field1\":3}, {\"field1\":2}]", "c",
+                        "{\"type\":\"StructuredData7a\",   \"multiplicity\":2, \"element\":{\"type\":\"StructuredData6Base\", \"attributes\":[{\"field1\":{\"type\":\"uint32\"}}]}}",
+                        "[{\"field1\":0}, {\"field1\":2}]", "c",
+                        "{\"type\":\"StructuredData7b\", \"multiplicity\":2, \"element\":{\"type\":\"StructuredData6Base\", \"attributes\":[{\"field1\":{\"type\":\"uint32\"}}]}}",
+                        "[{\"field1\":1}, {\"field1\":2}]", "a", NULL }, { NULL } };
 
 TEST(MathExpressionNode, Default) // Static initialisation
 {
@@ -111,7 +118,7 @@ TEST(MathExpressionNode, Default) // Static initialisation
     ASSERT_EQ(true, status);
 }
 
-TEST(MathExpressionNode, Default1) // Static initialisation
+TEST(MathExpressionNode, Table) // Static initialisation
 {
     bool status = Initialise();
 
@@ -179,6 +186,112 @@ TEST(MathExpressionNode, Default1) // Static initialisation
 
         i++;
     }
+
+    Terminate();
+
+    ASSERT_EQ(true, status);
+}
+
+TEST(MathExpressionNode, Error_NoValueInWorkspace) // Static initialisation
+{
+    bool status = Initialise();
+
+    std::unique_ptr<Procedure> proc(new Procedure);
+    auto myMathNode = GlobalInstructionRegistry().Create("MathExpressionNode");
+    myMathNode->AddAttribute("expression", "a:=1");
+
+    LogUI ui;
+    proc->PushInstruction(myMathNode.release());
+    status=(!proc->Setup());
+
+    Terminate();
+
+    ASSERT_EQ(true, status);
+}
+
+TEST(MathExpressionNode, Error_NoTypeInWorkspace) // Static initialisation
+{
+    bool status = Initialise();
+
+    std::unique_ptr<Procedure> proc(new Procedure);
+    auto myMathNode = GlobalInstructionRegistry().Create("MathExpressionNode");
+    myMathNode->AddAttribute("expression", "a:=1");
+
+    std::unique_ptr<Variable> varX(new LocalVariable);
+    proc->AddVariable("a", varX.release());
+
+    LogUI ui;
+    proc->PushInstruction(myMathNode.release());
+    status=(!proc->Setup());
+
+    Terminate();
+
+    ASSERT_EQ(true, status);
+}
+
+TEST(MathExpressionNode, Error_InvalidTypeInWorkspace) // Static initialisation
+{
+    bool status = Initialise();
+
+    std::unique_ptr<Procedure> proc(new Procedure);
+    auto myMathNode = GlobalInstructionRegistry().Create("MathExpressionNode");
+    myMathNode->AddAttribute("expression", "a:=1");
+
+    std::unique_ptr<Variable> varX(new LocalVariable);
+    varX->AddAttribute("type", "{\"type\":\"StructuredData6a\", \"multiplicity\":2, \"element\":{\"type\":\"StructuredData6Base\", \"attributes\":[{\"field1\":{\"type\":\"uint32\"}}]}}");
+    varX->AddAttribute("value", "[{\"field1\":1}, {\"field1\":2}]");
+
+    proc->AddVariable("a", varX.release());
+
+    LogUI ui;
+    proc->PushInstruction(myMathNode.release());
+    status=(!proc->Setup());
+
+    Terminate();
+
+    ASSERT_EQ(true, status);
+}
+
+TEST(MathExpressionNode, Error_CollectVar) // Static initialisation
+{
+    bool status = Initialise();
+
+    std::unique_ptr<Procedure> proc(new Procedure);
+    auto myMathNode = GlobalInstructionRegistry().Create("MathExpressionNode");
+    myMathNode->AddAttribute("expression", "++a-");
+
+    std::unique_ptr<Variable> varX(new LocalVariable);
+    varX->AddAttribute("type", "{\"type\":\"uint8\"}");
+    varX->AddAttribute("value", "0");
+
+    proc->AddVariable("a", varX.release());
+
+    LogUI ui;
+    proc->PushInstruction(myMathNode.release());
+    status=(!proc->Setup());
+
+    Terminate();
+
+    ASSERT_EQ(true, status);
+}
+
+TEST(MathExpressionNode, Error_Expression) // Static initialisation
+{
+    bool status = Initialise();
+
+    std::unique_ptr<Procedure> proc(new Procedure);
+    auto myMathNode = GlobalInstructionRegistry().Create("MathExpressionNode");
+    myMathNode->AddAttribute("expression", "a:=2^a");
+
+    std::unique_ptr<Variable> varX(new LocalVariable);
+    varX->AddAttribute("type", "{\"type\":\"uint8\"}");
+    varX->AddAttribute("value", "0");
+
+    proc->AddVariable("a", varX.release());
+
+    LogUI ui;
+    proc->PushInstruction(myMathNode.release());
+    status=(!proc->Setup());
 
     Terminate();
 

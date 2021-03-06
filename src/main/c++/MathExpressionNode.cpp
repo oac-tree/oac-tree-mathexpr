@@ -73,7 +73,7 @@ bool MathExpressionNode::Setup(Workspace *ws) {
 
         ret = engine->Compile(expression.c_str(), ws);
         if (!ret) {
-            log_info("MathExpressionNode::ExecuteSingleImpl Failed Compilation of %s", expression.c_str());
+            log_info("MathExpressionNode::Setup Failed Compilation of %s", expression.c_str());
         }
     }
     else {
