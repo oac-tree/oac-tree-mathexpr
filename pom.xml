@@ -99,8 +99,10 @@
                                 <include>*.so*</include>
                             </include>
                             <!-- Package dependencies -->
-                            <requires version="current" buildOnly="true">cmake3</requires>
+                            <requires codac="true">cpp-common</requires>
                             <requires codac="true">sequencer</requires>
+                            <requires version="current" buildOnly="true">cmake3</requires>
+                            <requires codac="true" buildOnly="true">cpp-common-devel</requires>
                             <requires codac="true" buildOnly="true">sequencer-devel</requires>
                             <!-- RPM scriptlet -->
                             <scriptlet type="posttrans">
