@@ -70,6 +70,15 @@ private:
      * to compile the expression the first time
      */
     bool firstTime;
+
+    /**
+     * @brief Compiles the math expression
+     * @details
+     * @param
+     * @return
+     */
+    bool SetupImpl(const Procedure & proc) override;
+
 public:
 
     /**
@@ -81,14 +90,6 @@ public:
      * @brief Destructor
      */
     virtual ~MathExpressionNode();
-
-    /**
-     * @brief Compiles the math expression
-     * @details
-     * @param
-     * @return
-     */
-    bool Setup(Workspace * ws) override;
 
     /**
      * @brief The class name

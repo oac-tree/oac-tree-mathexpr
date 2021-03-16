@@ -61,12 +61,12 @@ public:
      * @brief Compile the expression
      */
     virtual bool Compile(const ccs::types::char8 *expressionIn,
-                         Workspace *workspace)=0;
+                         const Procedure &proc)=0;
 
     /**
      * @brief Execute the computation.
      */
-    virtual bool Execute()=0;
+    virtual bool Execute(Workspace *ws)=0;
 };
 
 }

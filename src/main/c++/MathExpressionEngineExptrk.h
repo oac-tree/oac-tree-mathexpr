@@ -35,6 +35,7 @@
 #include <common/AnyType.h>
 #include <common/log-api.h>
 
+#include "Procedure.h"
 #include "Workspace.h"
 #include "MathExpressionEngineI.h"
 
@@ -112,7 +113,7 @@ private:
     BasicCastI *inputCasts[14];
     BasicCastI *outputCasts[14];
 
-    Workspace *myWs;
+    const Procedure *myProc;
 
     void CheckForArray(std::string &varName);
 
@@ -128,9 +129,9 @@ public:
 
     //Just don use vars with name including I1234I (a number between two I´)
     virtual bool Compile(const ccs::types::char8 *expressionIn,
-                         Workspace *workspace);
+                         const Procedure &proc);
 
-    virtual bool Execute();
+    virtual bool Execute(Workspace *ws);
 };
 
 }
@@ -175,7 +176,7 @@ MathExpressionEngineExptrk<T>::MathExpressionEngineExptrk() {
     outputCasts[12] = &toFloat64Cast;
     outputCasts[13] = NULL;
 
-    myWs = NULL;
+    myProc = NULL;
 }
 template<typename T>
 MathExpressionEngineExptrk<T>::~MathExpressionEngineExptrk() {
@@ -219,8 +220,8 @@ bool MathExpressionEngineExptrk<T>::CompileInputs(const std::vector<std::string>
     for (::ccs::types::uint32 i = 0u; (i < numberOfVars); i++) {
         ::ccs::types::AnyValue var;
         CheckForArray(varNames[i]);
-        if (!myWs->GetValue(varNames[i], var)) {
-            log_error("MathExpressionEngineExptrk::Compile Failed workspace->GetValue(%s)", varNames[i].c_str());
+        if (!myProc->GetVariableValue(varNames[i], var)) {
+            log_error("MathExpressionEngineExptrk::Compile Failed Procedure->GetVariableValue(%s)", varNames[i].c_str());
             return false;
         }
 
@@ -254,7 +255,7 @@ bool MathExpressionEngineExptrk<T>::CompileOutputs(const std::vector<std::string
             //when the output matches the variable, save the output cast
             if (origin_varnames[j] == symbol_list[i].first) {
                 ::ccs::types::AnyValue var;
-                (void) myWs->GetValue(varNames[j], var);
+                (void) myProc->GetVariableValue(varNames[j], var);
 
                 ::ccs::base::SharedReference<const ::ccs::types::AnyType> varTypeRef = var.GetType();
                 ::ccs::types::uint8 typeId = static_cast<::ccs::types::uint8>(::ccs::types::GetIdentifier(varTypeRef->GetName()));
@@ -269,35 +270,32 @@ bool MathExpressionEngineExptrk<T>::CompileOutputs(const std::vector<std::string
 
 template<typename T>
 bool MathExpressionEngineExptrk<T>::Compile(const ccs::types::char8 *expressionIn,
-                                            Workspace *workspace) {
+                                            const Procedure &proc) {
 
-    myWs = workspace;
-    ::ccs::types::boolean ret = (workspace != NULL);
+    myProc = &proc;
+    //get var names from expression
+    std::string exprStr = expressionIn;
+    std::replace(exprStr.begin(), exprStr.end(), '[', 'I');
+    std::replace(exprStr.begin(), exprStr.end(), ']', 'I');
+    std::vector < std::string > origin_varnames;
+    ::ccs::types::boolean ret = exprtk::collect_variables(exprStr.c_str(), origin_varnames);
+    varNames = origin_varnames;
     if (ret) {
-        //get var names from expression
-        std::string exprStr = expressionIn;
-        std::replace(exprStr.begin(), exprStr.end(), '[', 'I');
-        std::replace(exprStr.begin(), exprStr.end(), ']', 'I');
-        std::vector < std::string > origin_varnames;
-        ret = exprtk::collect_variables(exprStr.c_str(), origin_varnames);
-        varNames = origin_varnames;
-        if (ret) {
-            ret = CompileInputs(origin_varnames);
-        }
-        else {
-            log_error("MathExpressionEngineExptrk::Compile Failed exprtk::collect_variables of %s", expressionIn);
-        }
+        ret = CompileInputs(origin_varnames);
+    }
+    else {
+        log_error("MathExpressionEngineExptrk::Compile Failed exprtk::collect_variables of %s", expressionIn);
+    }
 
-        if (ret) {
-            SymbolListType symbol_list;
-            expressionParser.dec().collect_assignments() = true;
-            expression.register_symbol_table(symbolTable);
+    if (ret) {
+        SymbolListType symbol_list;
+        expressionParser.dec().collect_assignments() = true;
+        expression.register_symbol_table(symbolTable);
 
-            ret = expressionParser.compile(exprStr.c_str(), expression);
-            if (ret) {
-                //compile and get the assignments (outputs)
-                ret = CompileOutputs(origin_varnames, symbol_list);
-            }
+        ret = expressionParser.compile(exprStr.c_str(), expression);
+        if (ret) {
+            //compile and get the assignments (outputs)
+            ret = CompileOutputs(origin_varnames, symbol_list);
         }
     }
 
@@ -317,7 +315,7 @@ bool MathExpressionEngineExptrk<T>::Compile(const ccs::types::char8 *expressionI
 }
 
 template<typename T>
-bool MathExpressionEngineExptrk<T>::Execute() {
+bool MathExpressionEngineExptrk<T>::Execute(Workspace *ws) {
 
     ::ccs::types::uint32 nVars = varMem.size();
 
@@ -326,7 +324,7 @@ bool MathExpressionEngineExptrk<T>::Execute() {
         if (varInCast[i] != NULL) {
             ::ccs::types::uint32 varSize = varMem[i].size();
             ::ccs::types::AnyValue valT;
-            (void) myWs->GetValue(varNames[i], valT);
+            (void) ws->GetValue(varNames[i], valT);
             void *inPtr = valT.GetInstance();
             for (::ccs::types::uint32 j = 0u; j < varSize; j++) {
                 //todo workspace lock here (or better lock single vars)
@@ -342,12 +340,12 @@ bool MathExpressionEngineExptrk<T>::Execute() {
         if (varOutCast[i] != NULL) {
             ::ccs::types::uint32 varSize = varMem[i].size();
             ::ccs::types::AnyValue valT;
-            (void)myWs->GetValue(varNames[i], valT);
+            (void)ws->GetValue(varNames[i], valT);
             void *outPtr = valT.GetInstance();
             for (::ccs::types::uint32 j = 0u; j < varSize; j++) {
                 varOutCast[i]->Do(&varMem[i][0], outPtr, j);
             }
-            myWs->SetValue(varNames[i], valT);
+            ws->SetValue(varNames[i], valT);
         }
     }
     return true;

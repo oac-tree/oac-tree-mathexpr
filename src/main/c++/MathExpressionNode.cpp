@@ -63,7 +63,7 @@ MathExpressionNode::~MathExpressionNode() {
     }
 }
 
-bool MathExpressionNode::Setup(Workspace *ws) {
+bool MathExpressionNode::SetupImpl(const Procedure & proc) {
     log_info("MathExpressionNode::Setup ..");
 
     engine = MathExpressionEngineProvider::Instance()->CreateNewEngine();
@@ -71,7 +71,7 @@ bool MathExpressionNode::Setup(Workspace *ws) {
     if (ret) {
         std::string expression = GetAttribute("expression");
 
-        ret = engine->Compile(expression.c_str(), ws);
+        ret = engine->Compile(expression.c_str(), proc);
         if (!ret) {
             log_info("MathExpressionNode::Setup Failed Compilation of %s", expression.c_str());
         }
@@ -89,7 +89,7 @@ ExecutionStatus MathExpressionNode::ExecuteSingleImpl(UserInterface *ui,
 
     ExecutionStatus status = ExecutionStatus::SUCCESS;
 
-    bool ret = engine->Execute();
+    bool ret = engine->Execute(ws);
     if (!ret) {
         log_info("MathExpressionNode::ExecuteSingleImpl Failed Execution");
     }
