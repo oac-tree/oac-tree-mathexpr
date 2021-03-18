@@ -23,18 +23,22 @@
 #include <gtest/gtest.h> // Google test framework
 
 #include <common/log-api.h> // Syslog wrapper routines
-#include "common/BasicTypes.h"
-#include "common/AnyValue.h"
-#include "common/SharedReference.h"
-#include "common/AnyType.h"
+#include <common/BasicTypes.h>
+#include <common/AnyValue.h>
+#include <common/SharedReference.h>
+#include <common/AnyType.h>
+
+#include <Instruction.h>
+#include <InstructionRegistry.h>
+
+#include <Variable.h>
+#include <VariableRegistry.h>
+
+#include <Workspace.h>
+
+#include <SequenceParser.h>
 
 // Local header files
-
-#include "Instruction.h"
-#include "InstructionRegistry.h"
-#include "Workspace.h"
-#include "LocalVariable.h"
-#include "SequenceParser.h"
 
 #include "LogUI.h"
 
@@ -144,9 +148,11 @@ TEST(MathExpressionNode, Table) // Static initialisation
 
         ccs::types::uint32 j=4u;
         while(expressionTable[i][j]!=NULL) {
-
+#if 0
             std::unique_ptr<Variable> varX(new LocalVariable);
-
+#else
+	    auto varX = sup::sequencer::GlobalVariableRegistry().Create("Local");
+#endif
             varX->AddAttribute("type", expressionTable[i][j]);
             j++;
             varX->AddAttribute("value", expressionTable[i][j]);
@@ -217,7 +223,8 @@ TEST(MathExpressionNode, Error_NoTypeInWorkspace) // Static initialisation
     auto myMathNode = GlobalInstructionRegistry().Create("MathExpressionNode");
     myMathNode->AddAttribute("expression", "a:=1");
 
-    std::unique_ptr<Variable> varX(new LocalVariable);
+    //std::unique_ptr<Variable> varX(new LocalVariable);
+    auto varX = sup::sequencer::GlobalVariableRegistry().Create("Local");
     proc->AddVariable("a", varX.release());
 
     LogUI ui;
@@ -237,7 +244,8 @@ TEST(MathExpressionNode, Error_InvalidTypeInWorkspace) // Static initialisation
     auto myMathNode = GlobalInstructionRegistry().Create("MathExpressionNode");
     myMathNode->AddAttribute("expression", "a:=1");
 
-    std::unique_ptr<Variable> varX(new LocalVariable);
+    //std::unique_ptr<Variable> varX(new LocalVariable);
+    auto varX = sup::sequencer::GlobalVariableRegistry().Create("Local");
     varX->AddAttribute("type", "{\"type\":\"StructuredData6a\", \"multiplicity\":2, \"element\":{\"type\":\"StructuredData6Base\", \"attributes\":[{\"field1\":{\"type\":\"uint32\"}}]}}");
     varX->AddAttribute("value", "[{\"field1\":1}, {\"field1\":2}]");
 
@@ -260,7 +268,8 @@ TEST(MathExpressionNode, Error_CollectVar) // Static initialisation
     auto myMathNode = GlobalInstructionRegistry().Create("MathExpressionNode");
     myMathNode->AddAttribute("expression", "++a-");
 
-    std::unique_ptr<Variable> varX(new LocalVariable);
+    //std::unique_ptr<Variable> varX(new LocalVariable);
+    auto varX = sup::sequencer::GlobalVariableRegistry().Create("Local");
     varX->AddAttribute("type", "{\"type\":\"uint8\"}");
     varX->AddAttribute("value", "0");
 
@@ -283,7 +292,8 @@ TEST(MathExpressionNode, Error_Expression) // Static initialisation
     auto myMathNode = GlobalInstructionRegistry().Create("MathExpressionNode");
     myMathNode->AddAttribute("expression", "a:=2^a");
 
-    std::unique_ptr<Variable> varX(new LocalVariable);
+    //std::unique_ptr<Variable> varX(new LocalVariable);
+    auto varX = sup::sequencer::GlobalVariableRegistry().Create("Local");
     varX->AddAttribute("type", "{\"type\":\"uint8\"}");
     varX->AddAttribute("value", "0");
 

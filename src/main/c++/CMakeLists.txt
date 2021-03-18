@@ -33,7 +33,6 @@ target_include_directories(MathExpression
     PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}
         $ENV{CODAC_ROOT}/include
-        /home/ITER/ferrog/SUP/sequencer/src/main/c++/include
         $ENV{CODAC_ROOT}/include/sup
     )
 
