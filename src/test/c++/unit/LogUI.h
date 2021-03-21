@@ -54,6 +54,21 @@ namespace sequencer {
 class LogUI : public UserInterface
 {
   private:
+    /**
+     * @brief Hook when an instruction updates its status.
+     * @param instruction Instruction whose status is updated.
+     */
+    void UpdateInstructionStatusImpl(const Instruction * instruction);
+
+    /**
+     * @brief Hook called before executing a single step in the procedure.
+     */
+    void StartSingleStepImpl();
+
+    /**
+     * @brief Hook called after executing a single step in the procedure.
+     */
+    void EndSingleStepImpl();
 
   protected:
 
@@ -68,21 +83,6 @@ class LogUI : public UserInterface
      */
     ~LogUI() override;
 
-    /**
-     * @brief Hook when an instruction updates its status.
-     * @param instruction Instruction whose status is updated.
-     */
-    void UpdateInstructionStatus(const Instruction * instruction) override;
-
-    /**
-     * @brief Hook called before executing a single step in the procedure.
-     */
-    void StartSingleStep() override;
-
-    /**
-     * @brief Hook called after executing a single step in the procedure.
-     */
-    void EndSingleStep() override;
 };
 
 // Global variables
