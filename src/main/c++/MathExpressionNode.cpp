@@ -2,16 +2,16 @@
  * $HeadURL: $
  * $Id: $
  *
- * Project       : SUP - Sequencer MathExpression plugin
+ * Project       : CODAC Core System
  *
  * Description   : MathExpression plugin
  *
- * Author        : Walter Van Herck (IO)
+ * Author        : G.Ferro (IO)
  *
- * Copyright (c) : 2010-2020 ITER Organization,
- *                 CS 90 046
- *                 13067 St. Paul-lez-Durance Cedex
- *                 France
+ * Copyright (c) : 2010-2019 ITER Organization,
+ *  CS 90 046
+ *  13067 St. Paul-lez-Durance Cedex
+ *  France
  *
  * This file is part of ITER CODAC software.
  * For the terms and conditions of redistribution or use of this software

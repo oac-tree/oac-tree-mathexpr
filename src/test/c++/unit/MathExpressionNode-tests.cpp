@@ -2,16 +2,16 @@
  * $HeadURL: $
  * $Id: $
  *
- * Project       : SUP Sequencer
+ * Project       : CODAC Core System
  *
- * Description   : Unit test code
+ * Description   : MathExpression plugin
  *
- * Author        : Walter Van Herck (IO)
+ * Author        : G.Ferro (IO)
  *
- * Copyright (c) : 2010-2020 ITER Organization,
- *                 CS 90 046
- *                 13067 St. Paul-lez-Durance Cedex
- *                 France
+ * Copyright (c) : 2010-2019 ITER Organization,
+ *  CS 90 046
+ *  13067 St. Paul-lez-Durance Cedex
+ *  France
  *
  * This file is part of ITER CODAC software.
  * For the terms and conditions of redistribution or use of this software
@@ -93,11 +93,24 @@ static const ccs::types::char8 *expressionTable[][14] =
 TEST(MathExpressionNode, Default) // Static initialisation
 {
     bool status = Initialise();
+    std::string file; // Placeholder
 
-    auto proc = sup::sequencer::ParseProcedureFile("../resources/workspaceMath.xml");
+    if (::ccs::HelperTools::Exist("../resources/workspaceMath.xml"))
+      {
+        file = std::string("../resources/workspaceMath.xml");
+      }
+    else
+      {
+        file = std::string("./target/test/resources/workspaceMath.xml");
+      }
+
+    auto proc = sup::sequencer::ParseProcedureFile(file);
 
     status = bool(proc);
-
+    if (status)
+      { // Setup instructions
+        status = proc->Setup();
+      }
     if (status)
     {
         status = PrintProcedureWorkspace(proc.get());

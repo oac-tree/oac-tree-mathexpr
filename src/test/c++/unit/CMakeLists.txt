@@ -15,7 +15,6 @@ target_include_directories(unit-tests
 
 target_link_directories(unit-tests
     PRIVATE
-        /home/ITER/ferrog/SUP/sequencer/target/lib
         ${CMAKE_CURRENT_LIST_DIR}/../../../../target/lib
         $ENV{CODAC_ROOT}/lib
     )

@@ -4,7 +4,7 @@
  *
  * Project       : CODAC Core System
  *
- * Description   : EPICS ChannelAccess helper
+ * Description   : MathExpression plugin
  *
  * Author        : G.Ferro (IO)
  *
