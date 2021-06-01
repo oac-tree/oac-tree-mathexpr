@@ -80,7 +80,7 @@ bool MathExpressionNode::SetupImpl(const Procedure &proc) {
         varNames = mathEngine.GetVarNames();
     }
     else {
-        log_info("MathExpressionNode::Setup Failed Compilation of %s", expression.c_str());
+        log_error("MathExpressionNode::Setup Failed Compilation of %s", expression.c_str());
     }
 
     return ret;
@@ -114,7 +114,7 @@ ExecutionStatus MathExpressionNode::ExecuteSingleImpl(UserInterface *ui,
         }
     }
     else {
-        log_info("MathExpressionNode::ExecuteSingleImpl Failed Execution");
+        log_error("MathExpressionNode::ExecuteSingleImpl Failed Execution");
         status = ExecutionStatus::FAILURE;
     }
     return status;

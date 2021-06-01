@@ -46,6 +46,7 @@ target_link_directories(MathExpression
 target_link_libraries(MathExpression
     PRIVATE
         sequencer
+        ccs-mathexprtk
     )
 
 install(TARGETS MathExpression DESTINATION lib)

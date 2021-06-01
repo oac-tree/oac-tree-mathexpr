@@ -21,6 +21,6 @@ target_link_directories(unit-tests
 
 find_package(GTest REQUIRED)
 
-target_link_libraries(unit-tests MathExpression sequencer GTest::GTest GTest::Main ccs-types ccs-base ccs-common cpp-common-mathexprtk)
+target_link_libraries(unit-tests MathExpression sequencer GTest::GTest GTest::Main ccs-types ccs-base ccs-common ccs-mathexprtk)
 
 install(TARGETS unit-tests DESTINATION bin)
