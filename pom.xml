@@ -104,6 +104,8 @@
                             <requires version="current" buildOnly="true">cmake3</requires>
                             <requires codac="true" buildOnly="true">cpp-common-devel</requires>
                             <requires codac="true" buildOnly="true">sequencer-devel</requires>
+							<requires codac="true">cpp-common-mathexprtk</requires>
+							<requires codac="true" version="current" buildOnly="true">cpp-common-mathexprtk-devel</requires>
                             <!-- RPM scriptlet -->
                             <scriptlet type="posttrans">
                                 <![CDATA[ ldconfig ]]>

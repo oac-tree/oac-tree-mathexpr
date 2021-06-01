@@ -23,17 +23,13 @@ set_target_properties(MathExpression PROPERTIES
 
 target_sources(MathExpression
     PRIVATE
-        ${CMAKE_CURRENT_LIST_DIR}/exprtk.hpp
-        ${CMAKE_CURRENT_LIST_DIR}/MathExpressionEngineExptrk.cpp
         ${CMAKE_CURRENT_LIST_DIR}/MathExpressionNode.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/MathExpressionEngineProvider.cpp
     )
 
 target_include_directories(MathExpression
     PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}
         $ENV{CODAC_ROOT}/include
-        /home/ITER/ferrog/SUP/sequencer/src/main/c++/include
         $ENV{CODAC_ROOT}/include/sup
     )
 

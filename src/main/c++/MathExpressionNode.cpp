@@ -21,12 +21,14 @@
 
 // Global header files
 #include <common/log-api.h>
+#include <common/AnyValue.h>
+#include <InstructionRegistry.h>
+#include <Workspace.h>
+#include <Procedure.h>
 
 // Local header files
 
 #include "MathExpressionNode.h"
-#include "MathExpressionEngineProvider.h"
-#include "InstructionRegistry.h"
 
 // Constants
 
@@ -50,34 +52,35 @@ static const bool global_mathexpressionnode_registered = RegisterGlobalInstructi
 MathExpressionNode::MathExpressionNode() :
         Instruction(Type) {
     //todo when I read an expression
-    firstTime = true;
-    engine = NULL;
 }
 
 MathExpressionNode::~MathExpressionNode() {
 //Auto-generated destructor stub for MathExpressionNode
 
 //TODO Verify if manual additions are needed here
-    if (engine != NULL) {
-        delete engine;
-    }
 }
 
-bool MathExpressionNode::Setup(Workspace *ws) {
-    log_info("MathExpressionNode::Setup ..");
+bool MathExpressionNode::SetupImpl(const Procedure &proc) {
+    log_info("MathExpressionNode::SetupImpl ..");
 
-    engine = MathExpressionEngineProvider::Instance()->CreateNewEngine();
-    bool ret = (engine != NULL);
+    std::string expression = GetAttribute("expression");
+
+    //copy from sequencer workspace to mathexprtk workspace
+    auto varNamesWs = proc.VariableNames();
+
+    for (auto name : varNamesWs) {
+        ::ccs::types::AnyValue *valT = new ::ccs::types::AnyValue;
+        proc.GetVariableValue(name, *valT);
+
+        workspace.Insert(name, *valT, true);
+    }
+
+    bool ret = mathEngine.Compile(expression.c_str(), workspace);
     if (ret) {
-        std::string expression = GetAttribute("expression");
-
-        ret = engine->Compile(expression.c_str(), ws);
-        if (!ret) {
-            log_info("MathExpressionNode::Setup Failed Compilation of %s", expression.c_str());
-        }
+        varNames = mathEngine.GetVarNames();
     }
     else {
-        log_error("MathExpressionEngine is NULL");
+        log_info("MathExpressionNode::Setup Failed Compilation of %s", expression.c_str());
     }
 
     return ret;
@@ -86,14 +89,32 @@ bool MathExpressionNode::Setup(Workspace *ws) {
 
 ExecutionStatus MathExpressionNode::ExecuteSingleImpl(UserInterface *ui,
                                                       Workspace *ws) {
+    log_info("MathExpressionNode::ExecuteSingleImpl ..");
 
     ExecutionStatus status = ExecutionStatus::SUCCESS;
 
-    bool ret = engine->Execute();
-    if (!ret) {
-        log_info("MathExpressionNode::ExecuteSingleImpl Failed Execution");
+    //must update the values in the workspace...
+    for (auto varName : varNames) {
+        ::ccs::types::AnyValue valT;
+
+        ws->GetValue(varName, valT);
+        ::ccs::types::AnyValue *val = NULL;
+        workspace.Get(varName, val);
+        *val = valT;
     }
-    if (!ret) {
+
+    bool ret = mathEngine.Execute();
+
+    if (ret) {
+        //must update the values in the workspace...
+        for (auto varName : varNames) {
+            ::ccs::types::AnyValue *val = NULL;
+            workspace.Get(varName, val);
+            ws->SetValue(varName, *val);
+        }
+    }
+    else {
+        log_info("MathExpressionNode::ExecuteSingleImpl Failed Execution");
         status = ExecutionStatus::FAILURE;
     }
     return status;

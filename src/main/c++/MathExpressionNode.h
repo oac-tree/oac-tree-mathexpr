@@ -39,7 +39,9 @@
 /*---------------------------------------------------------------------------*/
 /*                        Project header includes                            */
 /*---------------------------------------------------------------------------*/
-#include "MathExpressionEngineI.h"
+#include <common/MathExpressionWorkspace.h>
+#include <common/MathExpressionEngineExptrk.h>
+#include <Instruction.h>
 /*---------------------------------------------------------------------------*/
 /*                           Class declaration                               */
 /*---------------------------------------------------------------------------*/
@@ -60,16 +62,24 @@ private:
      * @brief Compile the expression (only at the first execution and then) executes it
      */
     virtual ExecutionStatus ExecuteSingleImpl(UserInterface * ui, Workspace * ws);
+    
+    /**
+     * @brief Compiles the math expression
+     * @details
+     * @param
+     * @return
+     */
+    bool SetupImpl(const Procedure & proc) override;    
+    
+    /**
+     * MathExprtk workspace
+     */
+    ccs::mathexpr::MathExpressionWorkspace workspace;
 
     /**
-     * external engine
+     * MathExprtk engine
      */
-    MathExpressionEngineI *engine;
-
-    /**
-     * to compile the expression the first time
-     */
-    bool firstTime;
+    ccs::mathexpr::MathExpressionEngineExptrk mathEngine;
 public:
 
     /**
@@ -82,18 +92,17 @@ public:
      */
     virtual ~MathExpressionNode();
 
-    /**
-     * @brief Compiles the math expression
-     * @details
-     * @param
-     * @return
-     */
-    bool Setup(Workspace * ws) override;
+
 
     /**
      * @brief The class name
      */
     static const std::string Type;
+
+
+    std::vector<std::string> varNames;
+
+
 };
 // Global variables
 
