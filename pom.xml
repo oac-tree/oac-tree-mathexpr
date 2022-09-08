@@ -24,7 +24,7 @@
     <groupId>org.iter.codac.units</groupId>
     <artifactId>sequencer-plugin-mathexpr</artifactId>
     <packaging>codac</packaging>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
     <name>SUP sequencer plugin for mathematical expressions</name>
     <description>SUP sequencer plugin for mathematical expressions</description>
     <url>http://www.iter.org/</url>
@@ -38,7 +38,7 @@
         <sonar.exclusions>
             src/test/**,
             src/main/c++/exprtk.hpp
-        </sonar.exclusions>        
+        </sonar.exclusions>
         <pluginpath>lib/plugins</pluginpath>
     </properties>
 
@@ -46,7 +46,7 @@
     <parent>
         <groupId>org.iter.codac.units</groupId>
         <artifactId>maven-iter-settings</artifactId>
-        <version>6.3.0</version>
+        <version>7.1.0</version>
     </parent>
 
     <!-- unit owner and developers -->
@@ -101,11 +101,11 @@
                             <!-- Package dependencies -->
                             <requires codac="true">cpp-common</requires>
                             <requires codac="true">sequencer</requires>
-                            <requires version="current" buildOnly="true">cmake3</requires>
+                            <requires version="current" buildOnly="true">cmake</requires>
                             <requires codac="true" buildOnly="true">cpp-common-devel</requires>
                             <requires codac="true" buildOnly="true">sequencer-devel</requires>
-							<requires codac="true">cpp-common-mathexprtk</requires>
-							<requires codac="true" version="current" buildOnly="true">cpp-common-mathexprtk-devel</requires>
+                            <requires codac="true">cpp-common-mathexprtk</requires>
+                            <requires codac="true" version="current" buildOnly="true">cpp-common-mathexprtk-devel</requires>
                             <!-- RPM scriptlet -->
                             <scriptlet type="posttrans">
                                 <![CDATA[ ldconfig ]]>

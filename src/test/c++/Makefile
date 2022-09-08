@@ -23,5 +23,5 @@ unit-tests: $(UNIT_TEST)
 
 $(UNIT_TEST):
 	@mkdir -p $(BUILD_DIR)
-	cmake3 -B$(BUILD_DIR) $(CMAKE_FLAGS)
-	cmake3 --build $(BUILD_DIR)
+	cmake -B$(BUILD_DIR) $(CMAKE_FLAGS)
+	cmake --build $(BUILD_DIR)
