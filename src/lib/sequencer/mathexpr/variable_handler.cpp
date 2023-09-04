@@ -21,25 +21,21 @@
 
 #include "variable_handler.h"
 
-#include <sup/mathexpr/ivariablestore.h>
-
-#include <sup/dto/anytype.h>
-#include <sup/dto/anyvalue.h>
 #include <sup/dto/anyvalue_helper.h>
-#include <sup/sequencer/workspace.h>
 
 namespace sup
 {
 namespace sequencer
 {
 
-VariableHandler::VariableHandler(sequencer::Workspace* ws) : m_ws(ws)
+VariableHandler::VariableHandler(sequencer::Workspace& ws)
+  : m_ws{ws}
 {}
 
 VariableHandler::VarType VariableHandler::GetVariableType(const std::string& varname) const
 {
   dto::AnyValue readvalue;
-  if (!m_ws->HasVariable(varname) || !m_ws->GetValue(varname, readvalue))
+  if (!m_ws.HasVariable(varname) || !m_ws.GetValue(varname, readvalue))
   {
     return kUnknown;
   }
@@ -57,7 +53,7 @@ VariableHandler::VarType VariableHandler::GetVariableType(const std::string& var
 bool VariableHandler::GetScalar(const std::string& varname, double& val) const
 {
   dto::AnyValue readvalue;
-  m_ws->GetValue(varname, readvalue);
+  m_ws.GetValue(varname, readvalue);
   val = readvalue.As<double>();
   return true;
 }
@@ -65,13 +61,13 @@ bool VariableHandler::GetScalar(const std::string& varname, double& val) const
 bool VariableHandler::SetScalar(const std::string& varname, const double& val)
 {
   dto::AnyValue writevalue;
-  m_ws->GetValue(varname, writevalue);
+  m_ws.GetValue(varname, writevalue);
   dto::AnyValue temp = val;
   if (!sup::dto::TryConvert(writevalue, temp))
   {
     return false;
   }
-  if (!m_ws->SetValue(varname, writevalue))
+  if (!m_ws.SetValue(varname, writevalue))
   {
     return false;
   }
@@ -81,7 +77,7 @@ bool VariableHandler::SetScalar(const std::string& varname, const double& val)
 bool VariableHandler::GetVector(const std::string& varname, std::vector<double>& val) const
 {
   dto::AnyValue readvalue;
-  m_ws->GetValue(varname, readvalue);
+  m_ws.GetValue(varname, readvalue);
 
   val.resize(readvalue.NumberOfElements());
   for (size_t i = 0; i < readvalue.NumberOfElements(); ++i)
@@ -95,7 +91,7 @@ bool VariableHandler::SetVector(const std::string& varname, const std::vector<do
 {
   dto::AnyValue writevalue;
   dto::AnyValue temp;
-  m_ws->GetValue(varname, writevalue);
+  m_ws.GetValue(varname, writevalue);
   for (size_t i = 0; i < writevalue.NumberOfElements(); ++i)
   {
     temp = val[i];
@@ -104,7 +100,7 @@ bool VariableHandler::SetVector(const std::string& varname, const std::vector<do
       return false;
     }
   }
-  if (!m_ws->SetValue(varname, writevalue))
+  if (!m_ws.SetValue(varname, writevalue))
   {
     return false;
   }

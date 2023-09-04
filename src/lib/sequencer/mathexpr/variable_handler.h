@@ -24,7 +24,7 @@
 
 #include <sup/dto/anytype.h>
 #include <sup/dto/anyvalue.h>
-#include <sup/mathexpr/ivariablestore.h>
+#include <sup/mathexpr/i_variable_store.h>
 #include <sup/sequencer/workspace.h>
 
 #include <map>
@@ -39,7 +39,7 @@ namespace sequencer
 class VariableHandler : public mathexpr::IVariableStore
 {
 public:
-  VariableHandler(sequencer::Workspace* ws);
+  VariableHandler(sequencer::Workspace& ws);
   ~VariableHandler() override = default;
   VarType GetVariableType(const std::string& varname) const override;
   bool GetScalar(const std::string& varname, double& val) const override;
@@ -48,7 +48,7 @@ public:
   bool SetVector(const std::string& varname, const std::vector<double>& val) override;
 
 private:
-  sequencer::Workspace* m_ws;
+  sequencer::Workspace& m_ws;
 };
 
 }  // namespace sequencer

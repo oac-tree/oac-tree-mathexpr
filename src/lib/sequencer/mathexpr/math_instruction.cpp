@@ -21,13 +21,14 @@
 
 #include "math_instruction.h"
 
-#include <sup/mathexpr/expressioncontext.h>
+#include "variable_handler.h"
+
+#include <sup/mathexpr/expression_context.h>
 #include <sup/dto/basic_scalar_types.h>
 #include <sup/sequencer/generic_utils.h>
 #include <sup/sequencer/instruction_registry.h>
 #include <sup/sequencer/user_interface.h>
 #include <sup/sequencer/workspace.h>
-#include "variable_handler.h"
 
 #include <iostream>
 #include <string>
@@ -53,11 +54,11 @@ ExecutionStatus Math::ExecuteSingleImpl(UserInterface& ui, Workspace& ws)
 {
   auto expression = GetAttributeValue<std::string>(EXPR_STRING_ATTR_NAME);
 
-  VariableHandler handler(&ws);
+  VariableHandler handler(ws);
 
   try
   {
-    sup::mathexpr::ExpressionContext expr_ctx(expression, &handler);
+    sup::mathexpr::ExpressionContext expr_ctx(expression, handler);
     if (!expr_ctx.EvaluateExpression())
     {
       std::string error_message =
