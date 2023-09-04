@@ -4,7 +4,7 @@
  *
  * Project       : SUP - Sequencer
  *
- * Description   : SUP sequencer math plugin
+ * Description   : Sequencer plugin for mathematical expressions
  *
  * Author        : Ricardo Torres (EXT)
  *

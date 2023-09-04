@@ -19,8 +19,8 @@
 * of the distribution package.
 ******************************************************************************/
 
-#include <test_user_interface.h>
-#include <unit_test_helper.h>
+#include "test_user_interface.h"
+#include "unit_test_helper.h"
 
 #include <sup/sequencer/instruction_registry.h>
 #include <sup/sequencer/sequence_parser.h>
@@ -41,7 +41,7 @@ TEST_F(MathTest, Success)
   const std::string body{
     R"(
     <Sequence>
-        <Math expression="z:=x+y*y-2"/>
+        <MathExpression expression="z:=x+y*y-2"/>
         <Equals lhs="z" rhs="a"/>
     </Sequence>
     <Workspace>
@@ -62,7 +62,7 @@ TEST_F(MathTest, TypeFailure)
   const std::string body{
     R"(
     <Sequence>
-        <Math expression="z:=x+y-3"/>
+        <MathExpression expression="z:=x+y-3"/>
     </Sequence>
     <Workspace>
         <Local name="x" type='{"type":"uint8"}' value='1' />
@@ -81,7 +81,7 @@ TEST_F(MathTest, OutputFailure)
   const std::string body{
     R"(
     <Sequence>
-        <Math expression="x+y-3"/>
+        <MathExpression expression="x+y-3"/>
     </Sequence>
     <Workspace>
         <Local name="x" type='{"type":"int8"}' value='1' />
@@ -100,7 +100,7 @@ TEST_F(MathTest, SuccessArray)
   const std::string body{
     R"(
     <Sequence>
-        <Math expression="z:=x+y*y-2"/>
+        <MathExpression expression="z:=x+y*y-2"/>
         <Equals lhs="z" rhs="a"/>
     </Sequence>
     <Workspace>
@@ -121,7 +121,7 @@ TEST_F(MathTest, Increment)
   const std::string body{
     R"(
     <Sequence>
-        <Math expression="x+=1"/>
+        <MathExpression expression="x+=1"/>
         <Equals lhs="x" rhs="y"/>
     </Sequence>
     <Workspace>
@@ -140,7 +140,7 @@ TEST_F(MathTest, trig_identity)
   const std::string body{
     R"(
     <Sequence>
-        <Math expression='z:=sin(x)^2+cos(x)^2'/>
+        <MathExpression expression='z:=sin(x)^2+cos(x)^2'/>
         <Equals lhs="z" rhs="y"/>
     </Sequence>
     <Workspace>
@@ -160,7 +160,7 @@ TEST_F(MathTest, double_assign)
   const std::string body{
     R"(
     <Sequence>
-        <Math expression="y:=x+1; z:=y+2"/>
+        <MathExpression expression="y:=x+1; z:=y+2"/>
         <Equals lhs="y" rhs="a"/>
         <Equals lhs="z" rhs="b"/>
     </Sequence>
@@ -183,7 +183,7 @@ TEST_F(MathTest, multi_const)
   const std::string body{
     R"(
     <Sequence>
-        <Math expression="z:=y*c+2"/>
+        <MathExpression expression="z:=y*c+2"/>
         <Equals lhs="z" rhs="a"/>
     </Sequence>
     <Workspace>

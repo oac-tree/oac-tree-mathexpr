@@ -4,7 +4,7 @@
  *
  * Project       : SUP - Sequencer
  *
- * Description   : Sequencer for operational procedures
+ * Description   : Sequencer plugin for mathematical expressions
  *
  * Author        : Ricardo Torres (EXT)
  *
@@ -40,17 +40,17 @@ namespace sup
 namespace sequencer
 {
 
-const std::string Math::Type = "Math";
-static bool _math_initialised_flag = RegisterGlobalInstruction<Math>();
+const std::string MathExprInstruction::Type = "MathExpression";
+static bool _math_initialised_flag = RegisterGlobalInstruction<MathExprInstruction>();
 
-Math::Math() : Instruction(Math::Type)
+MathExprInstruction::MathExprInstruction() : Instruction(MathExprInstruction::Type)
 {
   AddAttributeDefinition(EXPR_STRING_ATTR_NAME, sup::dto::StringType).SetMandatory();
 }
 
-Math::~Math() = default;
+MathExprInstruction::~MathExprInstruction() = default;
 
-ExecutionStatus Math::ExecuteSingleImpl(UserInterface& ui, Workspace& ws)
+ExecutionStatus MathExprInstruction::ExecuteSingleImpl(UserInterface& ui, Workspace& ws)
 {
   auto expression = GetAttributeValue<std::string>(EXPR_STRING_ATTR_NAME);
 

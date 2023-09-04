@@ -4,7 +4,7 @@
  *
  * Project       : SUP - Sequencer
  *
- * Description   : Sequencer for operational procedures
+ * Description   : Sequencer plugin for mathematical expressions
  *
  * Author        : Ricardo Torres (EXT)
  *
@@ -31,15 +31,13 @@ namespace sequencer
 {
 /**
  * @brief Instruction node that processes mathematical expressions
- *
- * @details
  */
-class Math : public Instruction
+class MathExprInstruction : public Instruction
 {
 public:
-  Math();
+  MathExprInstruction();
 
-  ~Math() override;
+  ~MathExprInstruction() override;
 
   static const std::string Type;
 

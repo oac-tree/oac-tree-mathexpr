@@ -93,6 +93,8 @@
                         <!-- Package dependencies -->
                         <requires codac="true">sequencer</requires>
                         <requires codac="true" buildOnly="true">sequencer-devel</requires>
+                        <requires codac="true">sup-mathexpr</requires>
+                        <requires codac="true" buildOnly="true">sup-mathexpr-devel</requires>
                         <requires codac="true" buildOnly="true">gtest-1.12.1-devel</requires>
                         <requires version="current" buildOnly="true">cmake</requires>
                         <!-- RPM scriptlet -->
