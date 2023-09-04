@@ -3,8 +3,11 @@
            name="Trivial procedure for testing purposes"
            xmlns:xs="http://www.w3.org/2001/XMLSchema-instance"
            xs:schemaLocation="http://codac.iter.org/sup/sequencer sequencer.xsd">
-    <Plugin>libsequencer-math.so</Plugin>
-    <MathExpression expression="z:=x+y*2"/>
+    <Plugin>libsequencer-mathexpr.so</Plugin>
+    <Sequence>
+        <MathExpression expression="z:=x+y*2"/>
+        <Output from="z"/>
+    </Sequence>
     <Workspace>
       <Local name="x" type='{"type":"uint32"}' value='2' />
       <Local name="y" type='{"type":"uint32"}' value='50' />
