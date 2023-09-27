@@ -54,12 +54,12 @@ MathExprInstruction::~MathExprInstruction() = default;
 
 ExecutionStatus MathExprInstruction::ExecuteSingleImpl(UserInterface& ui, Workspace& ws)
 {
-  const auto expression = GetAttributeValue<std::string>(EXPR_STRING_ATTR_NAME);
   VariableHandler handler(ws);
-  sup::mathexpr::ExpressionContext expr_ctx(expression, handler);
+  sup::mathexpr::ExpressionContext expr_ctx(handler);
   try
   {
-    if (expr_ctx.EvaluateExpression())
+    const auto expression = GetAttributeValue<std::string>(EXPR_STRING_ATTR_NAME);
+    if (expr_ctx.EvaluateExpression(expression))
     {
       return ExecutionStatus::SUCCESS;
     }
