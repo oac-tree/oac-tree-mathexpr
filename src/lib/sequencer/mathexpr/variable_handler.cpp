@@ -23,6 +23,12 @@
 
 #include <sup/dto/anyvalue_helper.h>
 
+namespace
+{
+bool CanBeUsedAsDoubleType(const sup::dto::AnyType& anytype);
+bool CanBeUsedAsDoubleArrayType(const sup::dto::AnyType& anytype);
+}  // unnamed namespace
+
 namespace sup
 {
 namespace sequencer
@@ -34,16 +40,16 @@ VariableHandler::VariableHandler(sequencer::Workspace& ws)
 
 VariableHandler::VarType VariableHandler::GetVariableType(const std::string& varname) const
 {
-  dto::AnyValue readvalue;
+  sup::dto::AnyValue readvalue;
   if (!m_ws.HasVariable(varname) || !m_ws.GetValue(varname, readvalue))
   {
     return kUnknown;
   }
-  if (dto::IsScalarValue(readvalue))
+  if (CanBeUsedAsDoubleType(readvalue.GetType()))
   {
     return kScalar;
   }
-  if (sup::dto::IsArrayValue(readvalue))
+  if (CanBeUsedAsDoubleArrayType(readvalue.GetType()))
   {
     return kVector;
   }
@@ -52,18 +58,19 @@ VariableHandler::VarType VariableHandler::GetVariableType(const std::string& var
 
 bool VariableHandler::GetScalar(const std::string& varname, double& val) const
 {
-  dto::AnyValue readvalue;
-  m_ws.GetValue(varname, readvalue);
-  val = readvalue.As<double>();
-  return true;
+  sup::dto::AnyValue readvalue;
+  if (!m_ws.GetValue(varname, readvalue))
+  {
+    return false;
+  }
+  return readvalue.As(val);
 }
 
 bool VariableHandler::SetScalar(const std::string& varname, const double& val)
 {
-  dto::AnyValue writevalue;
+  sup::dto::AnyValue writevalue;
   m_ws.GetValue(varname, writevalue);
-  dto::AnyValue temp = val;
-  if (!sup::dto::TryConvert(writevalue, temp))
+  if (!sup::dto::TryConvert(writevalue, val))
   {
     return false;
   }
@@ -76,26 +83,33 @@ bool VariableHandler::SetScalar(const std::string& varname, const double& val)
 
 bool VariableHandler::GetVector(const std::string& varname, std::vector<double>& val) const
 {
-  dto::AnyValue readvalue;
-  m_ws.GetValue(varname, readvalue);
-
+  sup::dto::AnyValue readvalue;
+  if (!m_ws.GetValue(varname, readvalue))
+  {
+    return false;
+  }
   val.resize(readvalue.NumberOfElements());
   for (size_t i = 0; i < readvalue.NumberOfElements(); ++i)
   {
-    val[i] = readvalue[i].As<double>();
+    if(!readvalue[i].As(val[i]))
+    {
+      return false;
+    }
   }
   return true;
 }
 
 bool VariableHandler::SetVector(const std::string& varname, const std::vector<double>& val)
 {
-  dto::AnyValue writevalue;
-  dto::AnyValue temp;
+  sup::dto::AnyValue writevalue;
   m_ws.GetValue(varname, writevalue);
+  if (writevalue.NumberOfElements() != val.size())
+  {
+    return false;
+  }
   for (size_t i = 0; i < writevalue.NumberOfElements(); ++i)
   {
-    temp = val[i];
-    if (!sup::dto::TryConvert(writevalue[i], temp))
+    if (!sup::dto::TryConvert(writevalue[i], val[i]))
     {
       return false;
     }
@@ -110,3 +124,18 @@ bool VariableHandler::SetVector(const std::string& varname, const std::vector<do
 }  // namespace sequencer
 
 }  // namespace sup
+
+namespace
+{
+
+bool CanBeUsedAsDoubleType(const sup::dto::AnyType& anytype)
+{
+  return sup::dto::IsScalarType(anytype) && (anytype != sup::dto::StringType);
+}
+
+bool CanBeUsedAsDoubleArrayType(const sup::dto::AnyType& anytype)
+{
+  return sup::dto::IsArrayType(anytype) && CanBeUsedAsDoubleType(anytype.ElementType());
+}
+
+}  // unnamed namespace
