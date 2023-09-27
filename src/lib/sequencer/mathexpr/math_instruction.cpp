@@ -23,6 +23,7 @@
 
 #include "variable_handler.h"
 
+#include <sup/mathexpr/exceptions.h>
 #include <sup/mathexpr/expression_context.h>
 #include <sup/dto/basic_scalar_types.h>
 #include <sup/sequencer/generic_utils.h>
@@ -43,7 +44,8 @@ namespace sequencer
 const std::string MathExprInstruction::Type = "MathExpression";
 static bool _math_initialised_flag = RegisterGlobalInstruction<MathExprInstruction>();
 
-MathExprInstruction::MathExprInstruction() : Instruction(MathExprInstruction::Type)
+MathExprInstruction::MathExprInstruction()
+  : Instruction(MathExprInstruction::Type)
 {
   AddAttributeDefinition(EXPR_STRING_ATTR_NAME, sup::dto::StringType).SetMandatory();
 }
@@ -52,30 +54,22 @@ MathExprInstruction::~MathExprInstruction() = default;
 
 ExecutionStatus MathExprInstruction::ExecuteSingleImpl(UserInterface& ui, Workspace& ws)
 {
-  auto expression = GetAttributeValue<std::string>(EXPR_STRING_ATTR_NAME);
-
+  const auto expression = GetAttributeValue<std::string>(EXPR_STRING_ATTR_NAME);
   VariableHandler handler(ws);
-
+  sup::mathexpr::ExpressionContext expr_ctx(expression, handler);
   try
   {
-    sup::mathexpr::ExpressionContext expr_ctx(expression, handler);
-    if (!expr_ctx.EvaluateExpression())
+    if (expr_ctx.EvaluateExpression())
     {
-      std::string error_message =
-        InstructionErrorProlog(*this) + "Failure evaluating the expression.";
-      ui.LogError(error_message);
-      return ExecutionStatus::FAILURE;
+      return ExecutionStatus::SUCCESS;
     }
   }
-  catch (const std::exception& ex)
+  catch (sup::mathexpr::ExpressionEvaluateException& ex)
   {
-    std::string error_message =
-        InstructionErrorProlog(*this) + ex.what();
+    std::string error_message = InstructionErrorProlog(*this) + ex.what();
     ui.LogError(error_message);
-    return ExecutionStatus::FAILURE;
   }
-
-  return ExecutionStatus::SUCCESS;
+  return ExecutionStatus::FAILURE;
 }
 
 }  // namespace sequencer

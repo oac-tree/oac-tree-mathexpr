@@ -76,17 +76,34 @@ TEST_F(MathTest, TypeFailure)
   EXPECT_TRUE(test::TryAndExecute(proc, ui, ExecutionStatus::FAILURE));
 }
 
-TEST_F(MathTest, OutputFailure)
+TEST_F(MathTest, ConditionSuccess)
 {
   const std::string body{
     R"(
     <Sequence>
-        <MathExpression expression="x+y-3"/>
+        <MathExpression expression="x > y^2"/>
+    </Sequence>
+    <Workspace>
+        <Local name="x" type='{"type":"int8"}' value='10' />
+        <Local name="y" type='{"type":"int8"}' value='1' />
+    </Workspace>
+)"};
+
+  test::NullUserInterface ui;
+  auto proc = ParseProcedureString(test::CreateProcedureString(body));
+  EXPECT_TRUE(test::TryAndExecute(proc, ui));
+}
+
+TEST_F(MathTest, ConditionFailure)
+{
+  const std::string body{
+    R"(
+    <Sequence>
+        <MathExpression expression="x > y + 1"/>
     </Sequence>
     <Workspace>
         <Local name="x" type='{"type":"int8"}' value='1' />
         <Local name="y" type='{"type":"int8"}' value='1' />
-        <Local name="z" type='{"type":"int8"}' value='0' />
     </Workspace>
 )"};
 
