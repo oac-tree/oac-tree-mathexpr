@@ -152,7 +152,7 @@ TEST_F(MathTest, Increment)
   EXPECT_TRUE(test::TryAndExecute(proc, ui, ExecutionStatus::SUCCESS));
 }
 
-TEST_F(MathTest, trig_identity)
+TEST_F(MathTest, TrigIdentity)
 {
   const std::string body{
     R"(
@@ -172,7 +172,7 @@ TEST_F(MathTest, trig_identity)
   EXPECT_TRUE(test::TryAndExecute(proc, ui, ExecutionStatus::SUCCESS));
 }
 
-TEST_F(MathTest, double_assign)
+TEST_F(MathTest, DoubleAssign)
 {
   const std::string body{
     R"(
@@ -195,7 +195,7 @@ TEST_F(MathTest, double_assign)
   EXPECT_TRUE(test::TryAndExecute(proc, ui, ExecutionStatus::SUCCESS));
 }
 
-TEST_F(MathTest, multi_const)
+TEST_F(MathTest, MultiConst)
 {
   const std::string body{
     R"(
@@ -215,3 +215,21 @@ TEST_F(MathTest, multi_const)
   auto proc = ParseProcedureString(test::CreateProcedureString(body));
   EXPECT_TRUE(test::TryAndExecute(proc, ui, ExecutionStatus::SUCCESS));
 }
+
+TEST_F(MathTest, StringFailure)
+{
+  const std::string body{
+    R"(
+    <Sequence>
+        <MathExpression expression="x > 0"/>
+    </Sequence>
+    <Workspace>
+        <Local name="x" type='{"type":"string"}' value='"oops"' />
+    </Workspace>
+)"};
+
+  test::NullUserInterface ui;
+  auto proc = ParseProcedureString(test::CreateProcedureString(body));
+  EXPECT_TRUE(test::TryAndExecute(proc, ui, ExecutionStatus::FAILURE));
+}
+
