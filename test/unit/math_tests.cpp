@@ -42,7 +42,7 @@ TEST_F(MathTest, Success)
     R"(
     <Sequence>
         <MathExpression expression="z:=x+y*y-2"/>
-        <Equals lhs="z" rhs="a"/>
+        <Equals leftVar="z" rightVar="a"/>
     </Sequence>
     <Workspace>
         <Local name="x" type='{"type":"uint64"}' value='5' />
@@ -118,7 +118,7 @@ TEST_F(MathTest, SuccessArray)
     R"(
     <Sequence>
         <MathExpression expression="z:=x+y*y-2"/>
-        <Equals lhs="z" rhs="a"/>
+        <Equals leftVar="z" rightVar="a"/>
     </Sequence>
     <Workspace>
         <Local name="x" type='{"type":"uint32_arr","element":{"type":"uint32"}}' value="[2,4,6]"/>
@@ -139,7 +139,7 @@ TEST_F(MathTest, Increment)
     R"(
     <Sequence>
         <MathExpression expression="x+=1"/>
-        <Equals lhs="x" rhs="y"/>
+        <Equals leftVar="x" rightVar="y"/>
     </Sequence>
     <Workspace>
         <Local name="x" type='{"type":"int8"}' value='1'/>
@@ -158,7 +158,7 @@ TEST_F(MathTest, TrigIdentity)
     R"(
     <Sequence>
         <MathExpression expression='z:=sin(x)^2+cos(x)^2'/>
-        <Equals lhs="z" rhs="y"/>
+        <Equals leftVar="z" rightVar="y"/>
     </Sequence>
     <Workspace>
         <Local name="x" type='{"type":"float64"}' value='158'/>
@@ -178,8 +178,8 @@ TEST_F(MathTest, DoubleAssign)
     R"(
     <Sequence>
         <MathExpression expression="y:=x+1; z:=y+2"/>
-        <Equals lhs="y" rhs="a"/>
-        <Equals lhs="z" rhs="b"/>
+        <Equals leftVar="y" rightVar="a"/>
+        <Equals leftVar="z" rightVar="b"/>
     </Sequence>
     <Workspace>
         <Local name="x" type='{"type":"float32"}' value='158'/>
@@ -201,7 +201,7 @@ TEST_F(MathTest, MultiConst)
     R"(
     <Sequence>
         <MathExpression expression="z:=y*c+2"/>
-        <Equals lhs="z" rhs="a"/>
+        <Equals leftVar="z" rightVar="a"/>
     </Sequence>
     <Workspace>
         <Local name="y" type='{"type":"uint32_arr","element":{"type":"uint32"}}' value="[1,1,1]"/>

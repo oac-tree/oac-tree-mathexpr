@@ -6,7 +6,7 @@
     <Plugin>libsequencer-mathexpr.so</Plugin>
     <Sequence>
         <MathExpression expression="z:=x+y*2"/>
-        <Output from="z"/>
+        <Output fromVar="z"/>
     </Sequence>
     <Workspace>
       <Local name="x" type='{"type":"uint32"}' value='2' />
