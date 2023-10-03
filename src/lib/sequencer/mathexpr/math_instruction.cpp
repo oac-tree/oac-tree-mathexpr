@@ -56,9 +56,13 @@ ExecutionStatus MathExprInstruction::ExecuteSingleImpl(UserInterface& ui, Worksp
 {
   VariableHandler handler(ws);
   sup::mathexpr::ExpressionContext expr_ctx(handler);
+  std::string expression;
+  if (!GetVariableAttributeAs(EXPR_STRING_ATTR_NAME, ws, ui, expression))
+  {
+    return ExecutionStatus::FAILURE;
+  }
   try
   {
-    const auto expression = GetAttributeValue<std::string>(EXPR_STRING_ATTR_NAME);
     if (expr_ctx.EvaluateExpression(expression))
     {
       return ExecutionStatus::SUCCESS;

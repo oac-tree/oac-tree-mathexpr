@@ -233,3 +233,69 @@ TEST_F(MathTest, StringFailure)
   EXPECT_TRUE(test::TryAndExecute(proc, ui, ExecutionStatus::FAILURE));
 }
 
+TEST_F(MathTest, VariableConditionSuccess)
+{
+  const std::string body{
+    R"(
+    <MathExpression expression="@cond"/>
+    <Workspace>
+        <Local name="cond" type='{"type":"string"}' value='"x > y^2"' />
+        <Local name="x" type='{"type":"int8"}' value='10' />
+        <Local name="y" type='{"type":"int8"}' value='1' />
+    </Workspace>
+)"};
+
+  test::NullUserInterface ui;
+  auto proc = ParseProcedureString(test::CreateProcedureString(body));
+  EXPECT_TRUE(test::TryAndExecute(proc, ui));
+}
+
+TEST_F(MathTest, VariableConditionFailure)
+{
+  const std::string body{
+    R"(
+    <MathExpression expression="@cond"/>
+    <Workspace>
+        <Local name="cond" type='{"type":"string"}' value='"x = y^2"' />
+        <Local name="x" type='{"type":"int8"}' value='10' />
+        <Local name="y" type='{"type":"int8"}' value='1' />
+    </Workspace>
+)"};
+
+  test::NullUserInterface ui;
+  auto proc = ParseProcedureString(test::CreateProcedureString(body));
+  EXPECT_TRUE(test::TryAndExecute(proc, ui, ExecutionStatus::FAILURE));
+}
+
+TEST_F(MathTest, VariableConditionWrongType)
+{
+  const std::string body{
+    R"(
+    <MathExpression expression="@cond"/>
+    <Workspace>
+        <Local name="cond" type='{"type":"float32"}' value='4.3' />
+        <Local name="x" type='{"type":"int8"}' value='10' />
+        <Local name="y" type='{"type":"int8"}' value='1' />
+    </Workspace>
+)"};
+
+  test::NullUserInterface ui;
+  auto proc = ParseProcedureString(test::CreateProcedureString(body));
+  EXPECT_TRUE(test::TryAndExecute(proc, ui, ExecutionStatus::FAILURE));
+}
+
+TEST_F(MathTest, VariableConditionNotPresent)
+{
+  const std::string body{
+    R"(
+    <MathExpression expression="@cond"/>
+    <Workspace>
+        <Local name="x" type='{"type":"int8"}' value='10' />
+        <Local name="y" type='{"type":"int8"}' value='1' />
+    </Workspace>
+)"};
+
+  test::NullUserInterface ui;
+  auto proc = ParseProcedureString(test::CreateProcedureString(body));
+  EXPECT_TRUE(test::TryAndExecute(proc, ui, ExecutionStatus::FAILURE));
+}
