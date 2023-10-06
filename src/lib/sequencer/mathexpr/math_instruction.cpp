@@ -47,7 +47,8 @@ static bool _math_initialised_flag = RegisterGlobalInstruction<MathExprInstructi
 MathExprInstruction::MathExprInstruction()
   : Instruction(MathExprInstruction::Type)
 {
-  AddAttributeDefinition(EXPR_STRING_ATTR_NAME, sup::dto::StringType).SetMandatory();
+  AddAttributeDefinition(EXPR_STRING_ATTR_NAME)
+    .SetCategory(AttributeCategory::kBoth).SetMandatory();
 }
 
 MathExprInstruction::~MathExprInstruction() = default;
@@ -57,7 +58,7 @@ ExecutionStatus MathExprInstruction::ExecuteSingleImpl(UserInterface& ui, Worksp
   VariableHandler handler(ws);
   sup::mathexpr::ExpressionContext expr_ctx(handler);
   std::string expression;
-  if (!GetVariableAttributeAs(EXPR_STRING_ATTR_NAME, ws, ui, expression))
+  if (!GetAttributeValueAs(EXPR_STRING_ATTR_NAME, ws, ui, expression))
   {
     return ExecutionStatus::FAILURE;
   }
