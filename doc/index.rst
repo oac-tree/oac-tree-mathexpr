@@ -25,7 +25,7 @@ To use this plugin it needs to be compiled and installed in the system. The foll
 
    <Plugin>libsequencer-mathexpr.so</Plugin>
 
-The most basic use for this plugin is to evaluate mathematical expressions of scalars:
+The most basic use for this plugin is to assign a mathematical expression to a variable:
 
 .. code-block:: xml
 
@@ -39,10 +39,27 @@ The most basic use for this plugin is to evaluate mathematical expressions of sc
     </Workspace>
 
 
-In this example the output of the is saved in the variable "z". All non logical mathematical expressions need to be assigned to an output variable.
-The type of the output is always respected, so if the example above the result of the expression is negative or above the maximum value possible for an uint8, the sequencer will return an executionstatus of failure.
+In this example the output of 'x+y-1' is saved in the variable "z". In assignments, the type of the output is always respected, so if in the example above the result of the expression is negative or above the maximum value possible for an uint8, the sequencer will return an executionstatus of failure.
 
-Arrays can be used:
+Expressions without assignments are evaluated as a boolean and cause the instruction to return an executionstatus of success or failure accordingly.
+
+For example:
+
+.. code-block:: xml
+
+    <Sequence>
+        <MathExpression expression="x > y^2"/>
+    </Sequence>
+    <Workspace>
+        <Local name="x" type='{"type":"int8"}' value='10' />
+        <Local name="y" type='{"type":"int8"}' value='1' />
+    </Workspace>
+
+
+In this example, the instruction will succeed, since 'x' is bigger than 'y+2'.
+
+
+Arrays can also be used:
 
 .. code-block:: xml
 
@@ -57,7 +74,7 @@ Arrays can be used:
         <Local name="a" type='{"type":"uint32_arr","element":{"type":"uint32"}}' value="[1,3,5]"/>
     </Workspace>
 
-More than one assignment, even if chained, can be done in one call:
+Multiple assignments, even if chained, can be done in a single call:
 
 .. code-block:: xml
 
@@ -74,31 +91,6 @@ More than one assignment, even if chained, can be done in one call:
         <Local name="b" type='{"type":"float32"}' value='161'/>
     </Workspace>
 
-
-In logical expressions an assignment in not mandatory:
-
-.. code-block:: xml
-
-    <Sequence>
-        <MathExpression expression="x > y^2"/>
-    </Sequence>
-    <Workspace>
-        <Local name="x" type='{"type":"int8"}' value='10' />
-        <Local name="y" type='{"type":"int8"}' value='1' />
-    </Workspace>
-
-But it can be attributed:
-
-.. code-block:: xml
-
-    <Sequence>
-        <MathExpression expression="b:=x > y^2"/>
-    </Sequence>
-    <Workspace>
-        <Local name="x" type='{"type":"int8"}' value='10' />
-        <Local name="y" type='{"type":"int8"}' value='1' />
-        <Local name="b" type='{"type":"bool"}' value='false' />
-    </Workspace>
 
 An expression can be passed from a string variable:
 
