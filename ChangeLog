@@ -1,3 +1,7 @@
+Changes for v1.2:
+
+- New implementation based on sup-dto and sup-mathexpr
+
 Changes for v1.1:
 
 - Updated to use the external library for math expressions
