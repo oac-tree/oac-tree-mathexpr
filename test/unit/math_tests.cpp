@@ -81,7 +81,7 @@ TEST_F(MathTest, ConditionSuccess)
   const std::string body{
     R"(
     <Sequence>
-        <MathExpression expression="x > y^2"/>
+        <MathExpression expression="x &gt; y^2"/>
     </Sequence>
     <Workspace>
         <Local name="x" type='{"type":"int8"}' value='10' />
@@ -99,7 +99,7 @@ TEST_F(MathTest, ConditionFailure)
   const std::string body{
     R"(
     <Sequence>
-        <MathExpression expression="x > y + 1"/>
+        <MathExpression expression="x &gt; y + 1"/>
     </Sequence>
     <Workspace>
         <Local name="x" type='{"type":"int8"}' value='1' />
@@ -221,7 +221,7 @@ TEST_F(MathTest, StringFailure)
   const std::string body{
     R"(
     <Sequence>
-        <MathExpression expression="x > 0"/>
+        <MathExpression expression="x &gt; 0"/>
     </Sequence>
     <Workspace>
         <Local name="x" type='{"type":"string"}' value='"oops"' />
@@ -239,9 +239,9 @@ TEST_F(MathTest, VariableConditionSuccess)
     R"(
     <MathExpression expression="@cond"/>
     <Workspace>
-        <Local name="cond" type='{"type":"string"}' value='"x > y^2"' />
+        <Local name="cond" type='{"type":"string"}' value='"x &lt; y^2"' />
         <Local name="x" type='{"type":"int8"}' value='10' />
-        <Local name="y" type='{"type":"int8"}' value='1' />
+        <Local name="y" type='{"type":"int8"}' value='12' />
     </Workspace>
 )"};
 

@@ -104,3 +104,15 @@ An expression can be passed from a string variable:
         <Local name="x" type='{"type":"int8"}' value='10' />
         <Local name="y" type='{"type":"int8"}' value='1' />
     </Workspace>
+
+.. warning::
+
+   All sequencer plugins use an XML parser to process input functions. Please note that certain characters in your XML definitions may need to be escaped in order to avoid errors. These include:
+
+   - & (ampersand) - use &amp;
+   - < (less than) - use &lt;
+   - > (greater than) - use &gt;
+   - " (double quotation mark) - use &quot;
+   - ' (apostrophe) - use &apos;
+
+   From the above referenced characters, the greater than (>) character works as expected, but the less than (<) causes failures. To be sure no errors related to parsing this characters it is better to escape all of them.
