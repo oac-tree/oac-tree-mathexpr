@@ -72,7 +72,7 @@ ExecutionStatus MathExprInstruction::ExecuteSingleImpl(UserInterface& ui, Worksp
   catch (sup::mathexpr::ExpressionEvaluateException& ex)
   {
     std::string error_message = InstructionErrorProlog(*this) + ex.what();
-    ui.LogError(error_message);
+    LogError(ui, error_message);
   }
   return ExecutionStatus::FAILURE;
 }
