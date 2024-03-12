@@ -1,7 +1,12 @@
-Changes for v1.2:
+Changes for v1.3.0:
+
+- Improve documentation
+- Update cmake configuration
+
+Changes for v1.2.0:
 
 - New implementation based on sup-dto and sup-mathexpr
 
-Changes for v1.1:
+Changes for v1.1.0:
 
 - Updated to use the external library for math expressions
