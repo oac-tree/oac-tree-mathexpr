@@ -1,7 +1,5 @@
 add_library(sequencer-mathexpr SHARED)
 
-target_compile_features(sequencer-mathexpr PRIVATE cxx_std_11)
-
 set_target_properties(sequencer-mathexpr PROPERTIES
   EXPORT_NAME sequencer-mathexpr
   VERSION ${SUP_SEQUENCER_PLUGIN_MATHEXPR_BUILDVERSION}
