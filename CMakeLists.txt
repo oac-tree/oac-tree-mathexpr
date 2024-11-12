@@ -4,7 +4,7 @@
 #
 # Author        : Ricardo Torres (EXT)
 #
-# Copyright (c) : 2010-2023 ITER Organization,
+# Copyright (c) : 2010-2024 ITER Organization,
 #                 CS 90 046
 #                 13067 St. Paul-lez-Durance Cedex
 #                 France
@@ -22,7 +22,7 @@
 #   - CMake 3.13 - CMP0076: relative source file paths are interpreted as being relative to the current source directory
 cmake_minimum_required(VERSION 3.13)
 
-project(sup-sequencer-plugin-mathexpr VERSION 1.4.0 LANGUAGES CXX)
+project(sup-sequencer-plugin-mathexpr VERSION 1.5.0 LANGUAGES CXX)
 
 option(COVERAGE "Generate unit test coverage information" OFF)
 option(COA_BUILD_TESTS "Build unit tests" ON)

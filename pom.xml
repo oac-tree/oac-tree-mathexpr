@@ -8,7 +8,7 @@
 
  Authors       : CODAC Operation Applications Team
 
- Copyright (c) : 2010-2023 ITER Organization,
+ Copyright (c) : 2010-2024 ITER Organization,
                  CS 90 046
                  13067 St. Paul-lez-Durance Cedex
                  France
@@ -26,7 +26,7 @@
     <artifactId>sequencer-plugin-math</artifactId>
     <packaging>codac</packaging>
     <!-- See ChangeLog file for details -->
-    <version>1.4.0</version>
+    <version>1.5.0</version>
     <name>SUP sequencer math plugin module</name>
     <description>SUP sequencer math plugin module</description>
     <url>http://www.iter.org/</url>

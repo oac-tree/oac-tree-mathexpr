@@ -8,7 +8,7 @@
 *
 * Author        : Walter Van Herck (IO)
 *
-* Copyright (c) : 2010-2023 ITER Organization,
+* Copyright (c) : 2010-2024 ITER Organization,
 *                 CS 90 046
 *                 13067 St. Paul-lez-Durance Cedex
 *                 France
@@ -29,8 +29,12 @@ namespace sequencer {
 
 namespace test {
 
+using namespace std::placeholders;
+
 TestUserInputInterface::TestUserInputInterface()
   : m_main_text{}
+  , m_input_adapter{std::bind(&TestUserInputInterface::UserInput, this, _1, _2),
+                    std::bind(&TestUserInputInterface::Interrupt, this, _1)}
   , m_user_choices{}
   , m_current_index{0}
 {}
@@ -41,6 +45,50 @@ void TestUserInputInterface::SetUserChoices(const std::vector<int>& user_choices
 {
   m_user_choices = user_choices;
   m_current_index = 0;
+}
+
+std::unique_ptr<IUserInputFuture> TestUserInputInterface::RequestUserInput(
+  const UserInputRequest& request)
+{
+  return m_input_adapter.AddUserInputRequest(request);
+}
+
+UserInputReply TestUserInputInterface::UserInput(const UserInputRequest& request,
+                                                 sup::dto::uint64 id)
+{
+  (void)id;
+  switch (request.m_request_type)
+  {
+  case InputRequestType::kUserValue:
+  {
+    auto failure = CreateUserValueReply(false, {});
+    return failure;  // Not supported for this test class
+  }
+  case InputRequestType::kUserChoice:
+  {
+    auto failure = CreateUserChoiceReply(false, -1);
+    std::vector<std::string> options{};
+    sup::dto::AnyValue metadata{};
+    if (!ParseUserChoiceRequest(request, options, metadata))
+    {
+      return failure;
+    }
+    auto choice = GetUserChoice(options, metadata);
+    if (choice < 0)
+    {
+      return failure;
+    }
+    return CreateUserChoiceReply(true, choice);
+  }
+  default:
+    break;
+  }
+  return CreateUserValueReply(false, {});
+}
+
+void TestUserInputInterface::Interrupt(sup::dto::uint64 id)
+{
+  (void)id;
 }
 
 int TestUserInputInterface::GetUserChoice(const std::vector<std::string>& options,
