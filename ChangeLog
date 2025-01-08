@@ -1,6 +1,7 @@
 Changes for v1.5.0:
 
 - Adapt to sequencer v3.3
+- Changed C++ standard to C++17
 
 Changes for v1.4.0:
 
