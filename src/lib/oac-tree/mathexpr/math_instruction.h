@@ -2,9 +2,9 @@
  * $HeadURL: $
  * $Id: $
  *
- * Project       : SUP - Sequencer
+ * Project       : SUP - oac-tree
  *
- * Description   : Sequencer plugin for mathematical expressions
+ * Description   : oac-tree plugin for mathematical expressions
  *
  * Author        : Ricardo Torres (EXT)
  *
@@ -19,15 +19,15 @@
  * of the distribution package.
  ******************************************************************************/
 
-#ifndef SUP_SEQUENCER_MATH_H_
-#define SUP_SEQUENCER_MATH_H_
+#ifndef SUP_OAC_TREE_MATH_H_
+#define SUP_OAC_TREE_MATH_H_
 
-#include <sup/sequencer/execution_status.h>
-#include <sup/sequencer/instruction.h>
+#include <sup/oac-tree/execution_status.h>
+#include <sup/oac-tree/instruction.h>
 
 namespace sup
 {
-namespace sequencer
+namespace oac_tree
 {
 /**
  * @brief Instruction node that processes mathematical expressions
@@ -45,8 +45,8 @@ private:
   ExecutionStatus ExecuteSingleImpl(UserInterface& ui, Workspace& ws) override;
 };
 
-}  // namespace sequencer
+}  // namespace oac_tree
 
 }  // namespace sup
 
-#endif  // SUP_SEQUENCER_MATH_H_
+#endif  // SUP_OAC_TREE_MATH_H_

@@ -1,15 +1,15 @@
 extensions = [ "breathe" ]
-breathe_projects = { "sequencer-plugin-mathexper": "@CMAKE_CURRENT_BINARY_DIR@/xml" }
-breathe_default_project = "sequencer-plugin-mathexper"
+breathe_projects = { "oac-tree-plugin-mathexper": "@CMAKE_CURRENT_BINARY_DIR@/xml" }
+breathe_default_project = "oac-tree-plugin-mathexper"
 
-project = "sequencer-plugin-mathexper"
+project = "oac-tree-plugin-mathexper"
 author = "Ricardo Torres"
 copyright = "ITER Organization"
 version = "@PROJECT_VERSION@"
 release = "@PROJECT_VERSION@"
 
 # Set link name generated in the top bar.
-html_title = 'SEQUENCER PLUGIN MATHEXPER'
+html_title = 'OAC-TREE PLUGIN MATHEXPER'
 
 try:
     import sphinx_rtd_theme

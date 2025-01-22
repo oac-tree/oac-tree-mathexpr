@@ -2,9 +2,9 @@
  * $HeadURL: $
  * $Id: $
  *
- * Project       : SUP - Sequencer
+ * Project       : SUP - oac-tree
  *
- * Description   : Sequencer plugin for mathematical expressions
+ * Description   : oac-tree plugin for mathematical expressions
  *
  * Author        : Ricardo Torres (EXT)
  *
@@ -31,10 +31,10 @@ bool CanBeUsedAsDoubleArrayType(const sup::dto::AnyType& anytype);
 
 namespace sup
 {
-namespace sequencer
+namespace oac_tree
 {
 
-VariableHandler::VariableHandler(sequencer::Workspace& ws)
+VariableHandler::VariableHandler(oac_tree::Workspace& ws)
   : m_ws{ws}
 {}
 
@@ -121,7 +121,7 @@ bool VariableHandler::SetVector(const std::string& varname, const std::vector<do
   return true;
 }
 
-}  // namespace sequencer
+}  // namespace oac_tree
 
 }  // namespace sup
 

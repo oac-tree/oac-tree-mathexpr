@@ -2,9 +2,9 @@
  $HeadURL: $
  $Id: $
 
- Project       : Supervision and Automation - Sequencer
+ Project       : Supervision and Automation - oac-tree
 
- Description   : SUP sequencer EPICS plugin module
+ Description   : SUP oac-tree EPICS plugin module
 
  Authors       : CODAC Operation Applications Team
 
@@ -23,12 +23,12 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.iter.codac.units</groupId>
-    <artifactId>sequencer-plugin-math</artifactId>
+    <artifactId>oac-tree-plugin-math</artifactId>
     <packaging>codac</packaging>
     <!-- See ChangeLog file for details -->
     <version>1.5.0</version>
-    <name>SUP sequencer math plugin module</name>
-    <description>SUP sequencer math plugin module</description>
+    <name>SUP oac-tree math plugin module</name>
+    <description>SUP oac-tree math plugin module</description>
     <url>http://www.iter.org/</url>
 
     <!-- Project properties -->
@@ -87,12 +87,12 @@
                     <packaging>
                         <package>
                         <!-- Plugin libraries -->
-                        <include type="file" source="lib/sequencer/plugins" target="lib/sequencer/plugins">
+                        <include type="file" source="lib/oac-tree/plugins" target="lib/oac-tree/plugins">
                             <include>*.so*</include>
                         </include>
                         <!-- Package dependencies -->
-                        <requires codac="true">sequencer</requires>
-                        <requires codac="true" buildOnly="true">sequencer-devel</requires>
+                        <requires codac="true">oac-tree</requires>
+                        <requires codac="true" buildOnly="true">oac-tree-devel</requires>
                         <requires codac="true">sup-mathexpr</requires>
                         <requires codac="true" buildOnly="true">sup-mathexpr-devel</requires>
                         <requires codac="true" buildOnly="true">gtest-1.12.1-devel</requires>
@@ -101,6 +101,8 @@
                         <scriptlet type="posttrans">
                             <![CDATA[ ldconfig ]]>
                         </scriptlet>
+                        <!-- Symlinks -->
+                        <include type="symlink" link="/lib/sequencer/plugins/libsequencer-mathexpr.so" target="/lib/oac-tree/plugins/liboac-tree-mathexpr.so" linkroot="CODAC_ROOT" targetroot="CODAC_ROOT" />
                     </package>
                     <package name="docs">
                         <!--  Public API headers  -->

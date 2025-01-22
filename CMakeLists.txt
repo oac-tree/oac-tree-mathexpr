@@ -1,6 +1,6 @@
-# Project       : SUP - Sequencer
+# Project       : SUP - oac-tree
 #
-# Description   : Sequencer plugin for mathematical expressions
+# Description   : oac-tree plugin for mathematical expressions
 #
 # Author        : Ricardo Torres (EXT)
 #
@@ -15,7 +15,7 @@
 # of the distribution package.
 
 cmake_minimum_required(VERSION 3.13...3.31)
-project(sup-sequencer-plugin-mathexpr VERSION 1.5.0 LANGUAGES CXX)
+project(sup-oac-tree-plugin-mathexpr VERSION 1.5.0 LANGUAGES CXX)
 
 option(COA_COVERAGE "Generate unit test coverage information" OFF)
 option(COA_BUILD_TESTS "Build unit tests" ON)

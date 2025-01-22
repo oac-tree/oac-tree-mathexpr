@@ -2,9 +2,9 @@
  * $HeadURL: $
  * $Id: $
  *
- * Project       : SUP - Sequencer
+ * Project       : SUP - oac-tree
  *
- * Description   : Sequencer plugin for mathematical expressions
+ * Description   : oac-tree plugin for mathematical expressions
  *
  * Author        : Ricardo Torres (EXT)
  *
@@ -19,13 +19,13 @@
  * of the distribution package.
  ******************************************************************************/
 
-#ifndef SUP_SEQUENCER_PLUGIN_MATH_VARIABLE_HANDLER_H_
-#define SUP_SEQUENCER_PLUGIN_MATH_VARIABLE_HANDLER_H_
+#ifndef SUP_OAC_TREE_PLUGIN_MATH_VARIABLE_HANDLER_H_
+#define SUP_OAC_TREE_PLUGIN_MATH_VARIABLE_HANDLER_H_
 
 #include <sup/dto/anytype.h>
 #include <sup/dto/anyvalue.h>
 #include <sup/mathexpr/i_variable_store.h>
-#include <sup/sequencer/workspace.h>
+#include <sup/oac-tree/workspace.h>
 
 #include <map>
 #include <string>
@@ -33,13 +33,13 @@
 
 namespace sup
 {
-namespace sequencer
+namespace oac_tree
 {
 
 class VariableHandler : public mathexpr::IVariableStore
 {
 public:
-  VariableHandler(sequencer::Workspace& ws);
+  VariableHandler(oac_tree::Workspace& ws);
   ~VariableHandler() override = default;
   VarType GetVariableType(const std::string& varname) const override;
   bool GetScalar(const std::string& varname, double& val) const override;
@@ -48,11 +48,11 @@ public:
   bool SetVector(const std::string& varname, const std::vector<double>& val) override;
 
 private:
-  sequencer::Workspace& m_ws;
+  oac_tree::Workspace& m_ws;
 };
 
-}  // namespace sequencer
+}  // namespace oac_tree
 
 }  // namespace sup
 
-#endif  // SUP_SEQUENCER_PLUGIN_MATH_VARIABLE_HANDLER_H_
+#endif  // SUP_OAC_TREE_PLUGIN_MATH_VARIABLE_HANDLER_H_

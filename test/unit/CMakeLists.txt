@@ -14,7 +14,7 @@ target_include_directories(unit-tests
 
 find_package(GTest REQUIRED)
 
-target_link_libraries(unit-tests PUBLIC GTest::GTest GTest::Main sequencer-mathexpr)
+target_link_libraries(unit-tests PUBLIC GTest::GTest GTest::Main oac-tree-mathexpr)
 
 set_target_properties(unit-tests PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
 

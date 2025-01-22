@@ -1,15 +1,15 @@
-Welcome to sequencer-plugin-mathexpr's documentation!
+Welcome to oac-tree-plugin-mathexpr's documentation!
 =====================================================
 
    .. toctree::
       :maxdepth: 2
       :caption: Contents:
 
-   `sequencer-plugin-mathexpr` is a sequencer plugin that provides functionality for processing mathematical expressions using the exprtk library.
+   `oac-tree-plugin-mathexpr` is a oac-tree plugin that provides functionality for processing mathematical expressions using the exprtk library.
 
 Functionalities
 ---------------
-sequencer-plugin-mathexpr provides the following functionalities for processing mathematical expressions:
+oac-tree-plugin-mathexpr provides the following functionalities for processing mathematical expressions:
 
 1. Supports variables of any numeric type supported by AnyValue
 2. Supports arrays and scalars as variables
@@ -23,7 +23,7 @@ To use this plugin it needs to be compiled and installed in the system. The foll
 
 .. code-block:: xml
 
-   <Plugin>libsequencer-mathexpr.so</Plugin>
+   <Plugin>liboac-tree-mathexpr.so</Plugin>
 
 The most basic use for this plugin is to assign a mathematical expression to a variable:
 
@@ -39,7 +39,7 @@ The most basic use for this plugin is to assign a mathematical expression to a v
     </Workspace>
 
 
-In this example the output of 'x+y-1' is saved in the variable "z". In assignments, the type of the output is always respected, so if in the example above the result of the expression is negative or above the maximum value possible for an uint8, the sequencer will return an executionstatus of failure.
+In this example the output of 'x+y-1' is saved in the variable "z". In assignments, the type of the output is always respected, so if in the example above the result of the expression is negative or above the maximum value possible for an uint8, the oac-tree will return an executionstatus of failure.
 
 Expressions without assignments are evaluated as a boolean and cause the instruction to return an executionstatus of success or failure accordingly.
 
@@ -107,7 +107,7 @@ An expression can be passed from a string variable:
 
 .. warning::
 
-   All sequencer plugins use an XML parser to process input functions. Please note that certain characters in your XML definitions may need to be escaped in order to avoid errors. These include:
+   All oac-tree plugins use an XML parser to process input functions. Please note that certain characters in your XML definitions may need to be escaped in order to avoid errors. These include:
 
    - & (ampersand) - use &amp;
    - < (less than) - use &lt;

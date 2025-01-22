@@ -2,9 +2,9 @@
  * $HeadURL: $
  * $Id: $
  *
- * Project       : SUP - Sequencer
+ * Project       : SUP - oac-tree
  *
- * Description   : Sequencer plugin for mathematical expressions
+ * Description   : oac-tree plugin for mathematical expressions
  *
  * Author        : Ricardo Torres (EXT)
  *
@@ -26,10 +26,10 @@
 #include <sup/mathexpr/exceptions.h>
 #include <sup/mathexpr/expression_context.h>
 #include <sup/dto/basic_scalar_types.h>
-#include <sup/sequencer/generic_utils.h>
-#include <sup/sequencer/instruction_registry.h>
-#include <sup/sequencer/user_interface.h>
-#include <sup/sequencer/workspace.h>
+#include <sup/oac-tree/generic_utils.h>
+#include <sup/oac-tree/instruction_registry.h>
+#include <sup/oac-tree/user_interface.h>
+#include <sup/oac-tree/workspace.h>
 
 #include <iostream>
 #include <string>
@@ -38,7 +38,7 @@ const std::string EXPR_STRING_ATTR_NAME = "expression";
 
 namespace sup
 {
-namespace sequencer
+namespace oac_tree
 {
 
 const std::string MathExprInstruction::Type = "MathExpression";
@@ -77,6 +77,6 @@ ExecutionStatus MathExprInstruction::ExecuteSingleImpl(UserInterface& ui, Worksp
   return ExecutionStatus::FAILURE;
 }
 
-}  // namespace sequencer
+}  // namespace oac_tree
 
 }  // namespace sup
