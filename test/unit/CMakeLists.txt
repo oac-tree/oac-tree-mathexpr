@@ -21,4 +21,4 @@ find_package(GTest REQUIRED)
 
 target_link_libraries(${unit-tests} PUBLIC GTest::GTest GTest::Main oac-tree-mathexpr)
 
-gtest_discover_tests(${unit-tests})
+gtest_discover_tests(${unit-tests} DISCOVERY_MODE PRE_TEST)
