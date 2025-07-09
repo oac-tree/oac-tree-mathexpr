@@ -77,6 +77,24 @@ TEST_F(MathTest, TypeFailure)
   EXPECT_TRUE(test::TryAndExecute(proc, ui, ExecutionStatus::FAILURE));
 }
 
+TEST_F(MathTest, MissingVariableFailure)
+{
+  const std::string body{
+    R"(
+    <Sequence>
+        <MathExpression expression="z:=x+y-3"/>
+    </Sequence>
+    <Workspace>
+        <Local name="y" type='{"type":"uint8"}' value='1' />
+        <Local name="z" type='{"type":"uint8"}' value='0' />
+    </Workspace>
+)"};
+
+  test::NullUserInterface ui;
+  auto proc = ParseProcedureString(test::CreateProcedureString(body));
+  EXPECT_TRUE(test::TryAndExecute(proc, ui, ExecutionStatus::FAILURE));
+}
+
 TEST_F(MathTest, ConditionSuccess)
 {
   const std::string body{
