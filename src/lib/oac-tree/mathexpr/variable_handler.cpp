@@ -44,17 +44,17 @@ VariableHandler::VarType VariableHandler::GetVariableType(const std::string& var
   sup::dto::AnyValue readvalue;
   if (!m_ws.HasVariable(varname) || !m_ws.GetValue(varname, readvalue))
   {
-    return kUnknown;
+    return VarType::kUnknown;
   }
   if (CanBeUsedAsDoubleType(readvalue.GetType()))
   {
-    return kScalar;
+    return VarType::kScalar;
   }
   if (CanBeUsedAsDoubleArrayType(readvalue.GetType()))
   {
-    return kVector;
+    return VarType::kVector;
   }
-  return kUnknown;
+  return VarType::kUnknown;
 }
 
 bool VariableHandler::GetScalar(const std::string& varname, double& val) const
