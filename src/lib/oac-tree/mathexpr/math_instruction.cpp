@@ -48,7 +48,7 @@ static bool _math_initialised_flag = RegisterGlobalInstruction<MathExprInstructi
 MathExprInstruction::MathExprInstruction()
   : Instruction(MathExprInstruction::Type)
 {
-  AddAttributeDefinition(EXPR_STRING_ATTR_NAME)
+  (void)AddAttributeDefinition(EXPR_STRING_ATTR_NAME)
     .SetCategory(AttributeCategory::kBoth).SetMandatory();
 }
 

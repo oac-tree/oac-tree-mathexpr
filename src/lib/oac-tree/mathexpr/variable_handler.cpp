@@ -70,7 +70,7 @@ bool VariableHandler::GetScalar(const std::string& varname, double& val) const
 bool VariableHandler::SetScalar(const std::string& varname, const double& val)
 {
   sup::dto::AnyValue writevalue;
-  m_ws.GetValue(varname, writevalue);
+  (void)m_ws.GetValue(varname, writevalue);
   if (!sup::dto::TryConvert(writevalue, val))
   {
     return false;
@@ -103,7 +103,7 @@ bool VariableHandler::GetVector(const std::string& varname, std::vector<double>&
 bool VariableHandler::SetVector(const std::string& varname, const std::vector<double>& val)
 {
   sup::dto::AnyValue writevalue;
-  m_ws.GetValue(varname, writevalue);
+  (void)m_ws.GetValue(varname, writevalue);
   if (writevalue.NumberOfElements() != val.size())
   {
     return false;
