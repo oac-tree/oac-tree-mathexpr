@@ -32,10 +32,14 @@
 #include <sup/oac-tree/user_interface.h>
 #include <sup/oac-tree/workspace.h>
 
-#include <iostream>
 #include <string>
 
 const std::string EXPR_STRING_ATTR_NAME = "expression";
+
+namespace
+{
+constexpr double FALSE_AS_DOUBLE = 0.0;
+}
 
 namespace sup
 {
@@ -65,7 +69,7 @@ ExecutionStatus MathExprInstruction::ExecuteSingleImpl(UserInterface& ui, Worksp
   }
   try
   {
-    if (expr_ctx.EvaluateExpression(expression))
+    if (expr_ctx.EvaluateExpression(expression) != FALSE_AS_DOUBLE)
     {
       return ExecutionStatus::SUCCESS;
     }

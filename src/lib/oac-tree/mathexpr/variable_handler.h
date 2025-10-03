@@ -40,7 +40,7 @@ namespace oac_tree
 class VariableHandler : public mathexpr::IVariableStore
 {
 public:
-  VariableHandler(oac_tree::Workspace& ws);
+  explicit VariableHandler(oac_tree::Workspace& ws);
   ~VariableHandler() override = default;
   VarType GetVariableType(const std::string& varname) const override;
   bool GetScalar(const std::string& varname, double& val) const override;
