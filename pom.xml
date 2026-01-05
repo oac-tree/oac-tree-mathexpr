@@ -24,12 +24,12 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.iter.codac.units</groupId>
-    <artifactId>sequencer-plugin-math</artifactId>
+    <artifactId>sequencer-plugin-mathexpr</artifactId>
     <packaging>codac</packaging>
     <!-- See ChangeLog file for details -->
     <version>2.3.0</version>
-    <name>SUP oac-tree math plugin module</name>
-    <description>SUP oac-tree math plugin module</description>
+    <name>SUP oac-tree math expressions plugin module</name>
+    <description>SUP oac-tree math expressions plugin module</description>
     <url>http://www.iter.org/</url>
 
     <!-- Project properties -->
@@ -88,6 +88,7 @@
                     <!-- Configure packaging and dependencies -->
                     <packaging>
                         <package>
+                        <obsoletes codac="true">sequencer-plugin-math</obsoletes>
                         <!-- Plugin libraries -->
                         <include type="file" source="lib/oac-tree/plugins" target="lib/oac-tree/plugins">
                             <include>*.so*</include>
@@ -106,7 +107,7 @@
                     </package>
                     <package name="docs">
                         <!--  Public API headers  -->
-                        <include type="file" source="doc/${project.artifactId}" target="doc/${project.artifactId}"/>
+                        <include type="file" source="doc" target="doc/${project.artifactId}"/>
                         <!-- Package dependencies -->
                         <requires version="current">%{codac_rpm_prefix}-${project.artifactId}</requires>
                         <requires version="current" buildOnly="true">doxygen</requires>
