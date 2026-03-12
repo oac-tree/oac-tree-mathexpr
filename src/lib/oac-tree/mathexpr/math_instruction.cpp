@@ -47,7 +47,7 @@ namespace oac_tree
 {
 
 const std::string MathExprInstruction::Type = "MathExpression";
-static bool _math_initialised_flag = RegisterGlobalInstruction<MathExprInstruction>();
+static const bool math_initialised_flag = RegisterGlobalInstruction<MathExprInstruction>();
 
 MathExprInstruction::MathExprInstruction()
   : Instruction(MathExprInstruction::Type)
