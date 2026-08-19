@@ -10,6 +10,7 @@ target_sources(${unit-tests}
     ${CMAKE_CURRENT_LIST_DIR}/math_tests.cpp
     ${CMAKE_CURRENT_LIST_DIR}/test_user_interface.cpp
     ${CMAKE_CURRENT_LIST_DIR}/unit_test_helper.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/variable_handler_tests.cpp
 )
 
 target_include_directories(${unit-tests}
